@@ -154,11 +154,11 @@ inline void plot_pareto_front(const tapping::result_t &results)
     gp.set_ytics_minor(2);
 
     // Configure major grid.
-    gp.set_grid_line_style(gpcpp::grid_type_t::major, gpcpp::line_style_t::solid, gpcpp::Color("black"), 0.5);
+    gp.set_grid_line_type(gpcpp::grid_type_t::major, gpcpp::line_type_t::solid, gpcpp::Color("black"), 0.5);
     // Configure minor grid.
-    gp.set_grid_line_style(gpcpp::grid_type_t::minor, gpcpp::line_style_t::dashed, gpcpp::Color("black"), 0.25);
+    gp.set_grid_line_type(gpcpp::grid_type_t::minor, gpcpp::line_type_t::dashed, gpcpp::Color("black"), 0.25);
     // Apply grid configuration.
-    gp.apply_grid("xtics ytics mxtics mytics", -1, "back");
+    gp.apply_grid("xtics ytics mxtics mytics", "back");
 
     // Compute global axis limits for all Pareto fronts.
     auto [x_limits, y_limits] = compute_global_limits(results);
@@ -181,7 +181,7 @@ inline void plot_pareto_front(const tapping::result_t &results)
 
         // Create a step plot (stairs) for the current Pareto front.
         gp.plot_xy(time, energy, build_plot_name(pareto))
-            .set_plot_style(gpcpp::plot_style_t::steps)
+            .set_plot_type(gpcpp::plot_type_t::steps)
             .set_line_width(2.0);
     }
 
@@ -200,9 +200,9 @@ inline void plot_simulations(const std::vector<tapping::simulation_t> &simulatio
     gp.set_ytics_minor(2);
 
     // Configure grid lines
-    gp.set_grid_line_style(gpcpp::grid_type_t::major, gpcpp::line_style_t::solid, gpcpp::Color("black"), 0.5);
-    gp.set_grid_line_style(gpcpp::grid_type_t::minor, gpcpp::line_style_t::dashed, gpcpp::Color("black"), 0.25);
-    gp.apply_grid("xtics ytics mxtics mytics", -1, "back");
+    gp.set_grid_line_type(gpcpp::grid_type_t::major, gpcpp::line_type_t::solid, gpcpp::Color("black"), 0.5);
+    gp.set_grid_line_type(gpcpp::grid_type_t::minor, gpcpp::line_type_t::dashed, gpcpp::Color("black"), 0.25);
+    gp.apply_grid("xtics ytics mxtics mytics", "back");
 
     // Define axis labels
     gp.set_xlabel("Time (s)");
@@ -218,7 +218,7 @@ inline void plot_simulations(const std::vector<tapping::simulation_t> &simulatio
 
         // Plot the Pareto front
         gp.plot_xy(time, depth, simulation.name)        // Plot data
-            .set_plot_style(gpcpp::plot_style_t::steps) // Use step plot
+            .set_plot_type(gpcpp::plot_type_t::steps) // Use step plot
             .set_line_width(2.0);                       // Adjust line width
     }
 
