@@ -3,7 +3,6 @@
 /// @brief
 
 #include "fsmlib_support.hpp"
-#include "malg_support.hpp"
 #include "plotting.hpp"
 #include "defines.hpp"
 #include "builder.hpp"
@@ -63,6 +62,48 @@ inline void log_results(quire::log_level log_level, const tapping::result_t &res
         }
     }
     qlog(flexman::logging::app, log_level, "============================================================\n");
+}
+
+/// @brief Generates num points between start and max and return as vector.
+/// @tparam T The type of the vector.
+/// @param start The minimum value.
+/// @param stop The maximum value.
+/// @param num The number of elements.
+/// @return The generated vector.
+template <typename T>
+[[nodiscard]] inline auto linspace(T start, T stop, unsigned num = 100)
+{
+    std::vector<T> result(num, 1);
+    if (num == 0) {
+        return result;
+    }
+    bool are_the_same;
+    if constexpr (std::is_floating_point<T>::value) {
+        are_the_same = fsmlib::feq::approximately_equal(start, stop);
+    } else {
+        are_the_same = start == stop;
+    }
+    if (num == 1) {
+        result[0] = stop;
+        return result;
+    }
+    if (are_the_same) {
+        for (unsigned i = 0; i < num; ++i) {
+            result[i] = stop;
+        }
+    } else if (start < stop) {
+        T step = (stop - start) / static_cast<T>(num - 1);
+        for (unsigned i = 0; i < num; ++i) {
+            result[i] = start + step * static_cast<T>(i);
+        }
+    } else {
+        // When start > stop, generate a decreasing sequence
+        T step = (start - stop) / static_cast<T>(num - 1);
+        for (unsigned i = 0; i < num; ++i) {
+            result[i] = start - step * static_cast<T>(i);
+        }
+    }
+    return result;
 }
 
 /// @brief Determines the comparison result as a string with color coding.
@@ -246,7 +287,7 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
     unsigned iterations = parser.getOption<unsigned>("--iterations");
 
     // Create the gear factors.
-    const auto gear_factors = malg::utility::linspace<double>(
+    const auto gear_factors = tapping::linspace<double>(
         parser.getOption<unsigned>("--max_gear"),
         parser.getOption<unsigned>("--min_gear"),
         parser.getOption<unsigned>("--num_gear"));
@@ -365,7 +406,7 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
     unsigned iterations = parser.getOption<unsigned>("--iterations");
 
     // Create the gear factors.
-    const auto gear_factors = malg::utility::linspace<double>(
+    const auto gear_factors = tapping::linspace<double>(
         parser.getOption<unsigned>("--max_gear"),
         parser.getOption<unsigned>("--min_gear"),
         parser.getOption<unsigned>("--num_gear"));

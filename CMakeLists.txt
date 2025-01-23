@@ -35,7 +35,7 @@ mark_as_advanced(FORCE
 
 option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
 option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
-option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 # -----------------------------------------------------------------------------
 # DEPENDENCY (SYSTEM LIBRARIES)
@@ -96,81 +96,6 @@ if(NOT timelib_POPULATED)
     )
 endif()
 
-FetchContent_Declare(
-    chainsaw
-    GIT_REPOSITORY "https://github.com/Galfurian/chainsaw.git"
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
-    GIT_TAG        main
-)
-FetchContent_GetProperties(chainsaw)
-if(NOT chainsaw_POPULATED)
-    message(STATUS "Retrieving `chainsaw`...")
-    FetchContent_MakeAvailable(chainsaw)
-    # Hide fetchcontent variables.
-    mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_CHAINSAW FETCHCONTENT_SOURCE_DIR_CHAINSAW)
-endif()
-
-FetchContent_Declare(
-    cmdlp
-    GIT_REPOSITORY "https://github.com/Galfurian/cmdlp.git"
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
-    GIT_TAG        main
-)
-FetchContent_GetProperties(cmdlp)
-if(NOT cmdlp_POPULATED)
-    message(STATUS "Retrieving `cmdlp`...")
-    FetchContent_MakeAvailable(cmdlp)
-    # Hide fetchcontent variables.
-    mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_CMDLP FETCHCONTENT_SOURCE_DIR_CMDLP)
-endif()
-
-FetchContent_Declare(
-    malg
-    GIT_REPOSITORY "https://github.com/Galfurian/malg.git"
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
-    GIT_TAG        main
-)
-FetchContent_GetProperties(malg)
-if(NOT malg_POPULATED)
-    message(STATUS "Retrieving `malg`...")
-    FetchContent_MakeAvailable(malg)
-    # Hide fetchcontent variables.
-    mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_MALG FETCHCONTENT_SOURCE_DIR_MALG)
-endif()
-
-FetchContent_Declare(
-    fsmlib
-    GIT_REPOSITORY "https://github.com/Galfurian/fsmlib.git"
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
-    GIT_TAG        main
-)
-FetchContent_GetProperties(fsmlib)
-if(NOT fsmlib_POPULATED)
-    message(STATUS "Retrieving `fsmlib`...")
-    FetchContent_MakeAvailable(fsmlib)
-    # Hide fetchcontent variables.
-    mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_FSMLIB FETCHCONTENT_SOURCE_DIR_FSMLIB)
-endif()
-
-FetchContent_Declare(
-    gpcpp
-    GIT_REPOSITORY "https://github.com/Galfurian/gpcpp.git"
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
-    GIT_TAG        main
-)
-FetchContent_GetProperties(gpcpp)
-if(NOT gpcpp_POPULATED)
-    message(STATUS "Retrieving `gpcpp`...")
-    FetchContent_MakeAvailable(gpcpp)
-    # Hide fetchcontent variables.
-    mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_GPCPP FETCHCONTENT_SOURCE_DIR_GPCPP)
-endif()
-
 # -----------------------------------------------------------------------------
 # LIBRARY
 # -----------------------------------------------------------------------------
@@ -226,7 +151,68 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(BUILD_EXAMPLES)
-    
+
+    FetchContent_Declare(
+        chainsaw
+        GIT_REPOSITORY "https://github.com/Galfurian/chainsaw.git"
+        GIT_SHALLOW    TRUE
+        GIT_PROGRESS   TRUE
+        GIT_TAG        main
+    )
+    FetchContent_GetProperties(chainsaw)
+    if(NOT chainsaw_POPULATED)
+        message(STATUS "Retrieving `chainsaw`...")
+        FetchContent_MakeAvailable(chainsaw)
+        # Hide fetchcontent variables.
+        mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_CHAINSAW FETCHCONTENT_SOURCE_DIR_CHAINSAW)
+    endif()
+
+    FetchContent_Declare(
+        cmdlp
+        GIT_REPOSITORY "https://github.com/Galfurian/cmdlp.git"
+        GIT_SHALLOW    TRUE
+        GIT_PROGRESS   TRUE
+        GIT_TAG        main
+    )
+    FetchContent_GetProperties(cmdlp)
+    if(NOT cmdlp_POPULATED)
+        message(STATUS "Retrieving `cmdlp`...")
+        FetchContent_MakeAvailable(cmdlp)
+        # Hide fetchcontent variables.
+        mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_CMDLP FETCHCONTENT_SOURCE_DIR_CMDLP)
+    endif()
+
+    FetchContent_Declare(
+        fsmlib
+        GIT_REPOSITORY "https://github.com/Galfurian/fsmlib.git"
+        GIT_SHALLOW    TRUE
+        GIT_PROGRESS   TRUE
+        GIT_TAG        main
+    )
+    FetchContent_GetProperties(fsmlib)
+    if(NOT fsmlib_POPULATED)
+        message(STATUS "Retrieving `fsmlib`...")
+        FetchContent_MakeAvailable(fsmlib)
+        # Hide fetchcontent variables.
+        mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_FSMLIB FETCHCONTENT_SOURCE_DIR_FSMLIB)
+    endif()
+
+    FetchContent_Declare(
+        gpcpp
+        GIT_REPOSITORY "https://github.com/Galfurian/gpcpp.git"
+        GIT_SHALLOW    TRUE
+        GIT_PROGRESS   TRUE
+        GIT_TAG        main
+    )
+    FetchContent_GetProperties(gpcpp)
+    if(NOT gpcpp_POPULATED)
+        message(STATUS "Retrieving `gpcpp`...")
+        FetchContent_MakeAvailable(gpcpp)
+        # Hide fetchcontent variables.
+        mark_as_advanced(FORCE FETCHCONTENT_UPDATES_DISCONNECTED_GPCPP FETCHCONTENT_SOURCE_DIR_GPCPP)
+    endif()
+
+
     # Add the example.
     add_executable(flexman_tapping examples/tapping/main.cpp)
     target_include_directories(flexman_tapping PUBLIC
@@ -234,7 +220,6 @@ if(BUILD_EXAMPLES)
         ${chainsaw_SOURCE_DIR}/include
         ${fsmlib_SOURCE_DIR}/include
         ${cmdlp_SOURCE_DIR}/include
-        ${malg_SOURCE_DIR}/include
     )
     target_link_libraries(flexman_tapping PUBLIC
         chainsaw
@@ -242,7 +227,6 @@ if(BUILD_EXAMPLES)
         fsmlib
         gpcpp
         cmdlp
-        malg
     )
 
 endif(BUILD_EXAMPLES)

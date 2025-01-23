@@ -2,8 +2,9 @@
 /// @author Enrico Fraccaroli (enry.frak@gmail.com)
 /// @brief Tapping resources.
 
+#include <fsmlib/feq.hpp>
 #include <json/json.hpp>
-#include <malg/feq.hpp>
+
 #include <iostream>
 #include <iomanip>
 
@@ -18,8 +19,8 @@ struct resources_t {
 
 inline bool operator==(const resources_t &lhs, const resources_t &rhs) noexcept
 {
-    return malg::feq::approximately_equal(lhs.energy, rhs.energy) &&
-           malg::feq::approximately_equal(lhs.time, rhs.time);
+    return fsmlib::feq::approximately_equal(lhs.energy, rhs.energy) &&
+           fsmlib::feq::approximately_equal(lhs.time, rhs.time);
 }
 
 inline bool operator!=(const resources_t &lhs, const resources_t &rhs) noexcept
@@ -29,8 +30,8 @@ inline bool operator!=(const resources_t &lhs, const resources_t &rhs) noexcept
 
 inline bool operator<=(const resources_t &lhs, const resources_t &rhs) noexcept
 {
-    return malg::feq::approximately_lesser_than_equal(lhs.energy, rhs.energy) &&
-           malg::feq::approximately_lesser_than_equal(lhs.time, rhs.time);
+    return fsmlib::feq::approximately_lesser_than_equal(lhs.energy, rhs.energy) &&
+           fsmlib::feq::approximately_lesser_than_equal(lhs.time, rhs.time);
 }
 
 inline bool operator<(const resources_t &lhs, const resources_t &rhs) noexcept

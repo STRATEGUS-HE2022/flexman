@@ -9,6 +9,8 @@
 #include "flexman/simulation/simulate.hpp"
 #include "flexman/pso/common.hpp"
 
+#include <random>
+
 namespace flexman::pso
 {
 
