@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
-#include <execution>
 #include <iostream>
 
 #ifdef _WIN32
@@ -285,7 +284,6 @@ void remove_dominated_solutions(
     // Erase the solutions that are dominated.
     std::erase_if(solutions, [&](const Solution<State, Resources> &solution) {
         return std::any_of(
-            std::execution::par,
             solutions_to_check_against.begin(),
             solutions_to_check_against.end(),
             [&](const auto &other_solution) {
