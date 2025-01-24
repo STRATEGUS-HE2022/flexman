@@ -9,24 +9,15 @@ This project is a generalized simulation and optimization library designed to so
 
 ## Table of Contents
 
-- [Features](#features)
-- [Installation](#installation)
-- [Usage example: Industrial Tapping Machine](#usage-example-industrial-tapping-machine)
-  - [Step 1: Define the System](#step-1-define-the-system)
-  - [Step 2: Create Modes](#step-2-create-modes)
-  - [Step 3: Simulate Using Managers](#step-3-simulate-using-managers)
-  - [Step 4: Optimize with PSO](#step-4-optimize-with-pso)
-- [Code Structure](#code-structure)
-  - [Managers](#managers)
-  - [Resources](#resources)
-  - [Modes](#modes)
-  - [Builder](#builder)
-  - [PSO Integration](#pso-integration)
-- [How to Run the Example](#how-to-run-the-example)
-- [Extending the Library](#extending-the-library)
-- [Contributing](#contributing)
-- [Acknowledgments](#acknowledgments)
-- [License](#license)
+- Features
+- Installation
+- Usage example: Industrial Tapping Machine
+- Code Structure
+- How to Run the Example
+- Extending the Library
+- Contributing
+- Acknowledgments
+- License
 
 ## Features
 
