@@ -283,22 +283,22 @@ void remove_dominated_solutions(
 
     // Erase the solutions that are dominated.
     solutions.erase(
-    std::remove_if(
-        solutions.begin(),
-        solutions.end(),
-        [&](const Solution<State, Resources> &solution) {
-            return std::any_of(
-                solutions_to_check_against.begin(),
-                solutions_to_check_against.end(),
-                [&](const auto &other_solution) {
-                    if constexpr (Algorithm == SearchAlgorithm::Heuristic) {
-                        return manager->is_probably_better_than(other_solution, solution);
-                    } else {
-                        return manager->is_strictly_better_than(other_solution, solution);
-                    }
-                });
-        }),
-    solutions.end());
+        std::remove_if(
+            solutions.begin(),
+            solutions.end(),
+            [&](const Solution<State, Resources> &solution) {
+                return std::any_of(
+                    solutions_to_check_against.begin(),
+                    solutions_to_check_against.end(),
+                    [&](const auto &other_solution) {
+                        if constexpr (Algorithm == SearchAlgorithm::Heuristic) {
+                            return manager->is_probably_better_than(other_solution, solution);
+                        } else {
+                            return manager->is_strictly_better_than(other_solution, solution);
+                        }
+                    });
+            }),
+        solutions.end());
 
     qdebug(logging::common, "[%8u] After removing dominated solutions.\n", solutions.size());
 }
