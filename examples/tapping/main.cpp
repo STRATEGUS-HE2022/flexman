@@ -40,7 +40,7 @@ enum algorithm_type {
 inline bool compare_ascending(const solution_t &lhs, const solution_t &rhs)
 {
     // Primary sort: by energy (ascending).
-    if (lhs.resources.energy != rhs.resources.energy) {
+    if (!fsmlib::feq::approximately_equal(lhs.resources.energy, rhs.resources.energy)) {
         return lhs.resources.energy < rhs.resources.energy;
     }
     // Secondary sort: by time (ascending).

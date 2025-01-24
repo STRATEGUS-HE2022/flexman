@@ -6,9 +6,9 @@
 
 #include "builder.hpp"
 
-#include <chainsaw/stepper/stepper_rk4.hpp>
-#include <chainsaw/detail/observer.hpp>
-#include <chainsaw/solver.hpp>
+#include <numint/stepper/stepper_rk4.hpp>
+#include <numint/detail/observer.hpp>
+#include <numint/solver.hpp>
 
 namespace tapping
 {
@@ -91,12 +91,12 @@ public:
     void updated_solution(solution_t &solution, const continous_mode_t &mode) const override
     {
         // Update the state.
-        chainsaw::stepper_rk4<state_t, double> solver;
-        chainsaw::detail::Observer<state_t, double> observer;
+        numint::stepper_rk4<state_t, double> solver;
+        numint::detail::Observer<state_t, double> observer;
         // Compute the step_size.
         double step_size = time_delta / 100;
         // Perform integration.
-        chainsaw::integrate_fixed(
+        numint::integrate_fixed(
             solver,
             observer,
             [&](const state_t &x, state_t &dxdt, double) {

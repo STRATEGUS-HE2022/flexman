@@ -25,7 +25,7 @@ inline bool operator==(const resources_t &lhs, const resources_t &rhs) noexcept
 
 inline bool operator!=(const resources_t &lhs, const resources_t &rhs) noexcept
 {
-    return !(lhs.energy == rhs.energy);
+    return !fsmlib::feq::approximately_equal(lhs.energy, rhs.energy);
 }
 
 inline bool operator<=(const resources_t &lhs, const resources_t &rhs) noexcept
@@ -36,7 +36,7 @@ inline bool operator<=(const resources_t &lhs, const resources_t &rhs) noexcept
 
 inline bool operator<(const resources_t &lhs, const resources_t &rhs) noexcept
 {
-    if (lhs.energy != rhs.energy)
+    if (!fsmlib::feq::approximately_equal(lhs.energy, rhs.energy))
         return lhs.energy < rhs.energy;
     return lhs.time < rhs.time;
 }

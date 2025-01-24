@@ -77,7 +77,7 @@ inline std::pair<std::vector<double>, std::vector<double>> extract_time_depth(co
 /// @return The rounded number.
 double round_to_multiple(double value, double multiple)
 {
-    if (multiple == 0.0) {
+    if (fsmlib::feq::approximately_equal_to_zero(multiple)) {
         return value; // No rounding needed if multiple is 0
     }
     return std::round(value / multiple) * multiple;
@@ -111,13 +111,13 @@ std::pair<std::array<double, 2>, std::array<double, 2>> compute_global_limits(co
     }
 
     // Handle edge case where all data points are the same
-    if (x_min == x_max) {
-        double margin = (x_min != 0.0) ? std::abs(x_min) * margin_fraction : 1.0;
+    if (fsmlib::feq::approximately_equal(x_min, x_max)) {
+        double margin = (!fsmlib::feq::approximately_equal_to_zero(x_min)) ? std::abs(x_min) * margin_fraction : 1.0;
         x_min -= margin;
         x_max += margin;
     }
-    if (y_min == y_max) {
-        double margin = (y_min != 0.0) ? std::abs(y_min) * margin_fraction : 1.0;
+    if (fsmlib::feq::approximately_equal(y_min, y_max)) {
+        double margin = (!fsmlib::feq::approximately_equal_to_zero(y_min)) ? std::abs(y_min) * margin_fraction : 1.0;
         y_min -= margin;
         y_max += margin;
     }
