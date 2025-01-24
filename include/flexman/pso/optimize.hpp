@@ -95,9 +95,9 @@ constexpr inline void update_all_particles(
     std::vector<std::vector<flexman::ModeExecution>> &particles)
 {
     // Iterate through all particles in the swarm.
-    for (size_t i = 0; i < particles.size(); ++i) {
+    for (std::size_t i = 0; i < particles.size(); ++i) {
         // Iterate through each mode in the current particle.
-        for (size_t j = 0; j < particles[i].size(); ++j) {
+        for (std::size_t j = 0; j < particles[i].size(); ++j) {
             // Update the velocity and number of executions for the current mode in the particle.
             flexman::pso::update_particle_velocity_and_position(
                 parameters,          // PSO parameters (inertia, cognitive, social).
@@ -215,7 +215,7 @@ auto optimize_solution(
     auto [gen, dist] = initialize_random_generator(1.0, 10.0);
 
     // Particle Initialization:
-    for (size_t i = 0; i < parameters.num_particles; ++i) {
+    for (std::size_t i = 0; i < parameters.num_particles; ++i) {
         // Copy the initial solution's sequence to the current particle.
         particles[i] = initial_solution.sequence;
 
@@ -236,12 +236,12 @@ auto optimize_solution(
     global_best = personal_best[0];
 
     // Main PSO Loop:
-    for (size_t iteration = 0; iteration < parameters.max_iterations; ++iteration) {
+    for (std::size_t iteration = 0; iteration < parameters.max_iterations; ++iteration) {
         // Count of valid solutions in this iteration.
-        size_t valid_solution_count = 0;
+        std::size_t valid_solution_count = 0;
 
         // Evaluate each particle's fitness and update personal/global bests.
-        for (size_t i = 0; i < parameters.num_particles; ++i) {
+        for (std::size_t i = 0; i < parameters.num_particles; ++i) {
             valid_solution_count += flexman::pso::evaluate_particle(
                 manager,                  // Optimization manager for solution validation.
                 modes,                    // Available modes for optimization.
@@ -302,7 +302,7 @@ auto optimize_pareto_front(
         .runtime             = pareto_front.runtime,
     };
 
-    size_t index = 1, total = pareto_front.solutions.size();
+    std::size_t index = 1, total = pareto_front.solutions.size();
     for (const auto &solution : pareto_front.solutions) {
         qinfo(logging::pso, "    Optimize solution %3u/%3u...\n", index++, total);
         optimized.solutions.emplace_back(
@@ -336,7 +336,7 @@ auto optimize_result(
         .pareto_fronts = {},
     };
 
-    size_t index = 1, total = result.pareto_fronts.size();
+    std::size_t index = 1, total = result.pareto_fronts.size();
     for (const auto &pareto_front : result.pareto_fronts) {
         qinfo(logging::pso, "Optimize Pareto front (step: %6.2f) %3u/%3u...\n",
               pareto_front.step_length, index++, total);

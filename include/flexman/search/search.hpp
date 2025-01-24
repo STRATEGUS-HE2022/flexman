@@ -13,7 +13,6 @@
 #include <timelib/timer.hpp>
 #include <algorithm>
 #include <cmath>
-#include <bit>
 
 namespace flexman::search
 {
