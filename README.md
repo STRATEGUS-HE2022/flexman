@@ -1,5 +1,10 @@
 # FlexMan: Adaptive Scheduling and Optimization Library
 
+[![Ubuntu](https://github.com/Galfurian/flexman/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/Galfurian/flexman/actions/workflows/ubuntu.yml)
+[![Windows](https://github.com/Galfurian/flexman/actions/workflows/windows.yml/badge.svg)](https://github.com/Galfurian/flexman/actions/workflows/windows.yml)
+[![MacOS](https://github.com/Galfurian/flexman/actions/workflows/macos.yml/badge.svg)](https://github.com/Galfurian/flexman/actions/workflows/macos.yml)
+[![Documentation](https://github.com/Galfurian/flexman/actions/workflows/documentation.yml/badge.svg)](https://github.com/Galfurian/flexman/actions/workflows/documentation.yml)
+
 ## Overview
 
 This project is a generalized simulation and optimization library designed to solve continuous-time scheduling problems by finding the best sequence of modes to achieve a target state. Users can define their systems' state evolution freely, track resources, and optimize performance using techniques like exhaustive searches, heuristic evaluations, and Particle Swarm Optimization (PSO). The library is modular and adaptable to various applications, with the industrial tapping machine serving as an example.
