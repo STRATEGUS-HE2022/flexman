@@ -5,13 +5,10 @@
 [![MacOS](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/macos.yml/badge.svg)](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/macos.yml)
 [![Documentation](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/documentation.yml/badge.svg)](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/documentation.yml)
 
-## Overview
-
 This project is a generalized simulation and optimization library designed to solve continuous-time scheduling problems by finding the best sequence of modes to achieve a target state. Users can define their systems' state evolution freely, track resources, and optimize performance using techniques like exhaustive searches, heuristic evaluations, and Particle Swarm Optimization (PSO). The library is modular and adaptable to various applications, with the industrial tapping machine serving as an example.
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage example: Industrial Tapping Machine](#usage-example-industrial-tapping-machine)
