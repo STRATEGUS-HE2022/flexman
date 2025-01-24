@@ -1,4 +1,4 @@
-/// @file pso_data.hpp
+/// @file common.hpp
 /// @author Enrico Fraccaroli (enry.frak@gmail.com)
 /// @brief Data-structures related to PSO.
 
