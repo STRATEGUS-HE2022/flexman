@@ -489,7 +489,11 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
         for (const auto &mode : modes) {
-            simulations.emplace_back(flexman::simulation::simulate_single_mode(&search, mode, simulation_steps));
+            simulations.emplace_back(
+                tapping::simulation_t{
+                    .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
+                    .name = "Mode " + std::to_string(mode.id),
+                });
         }
 
         // Plot the results.

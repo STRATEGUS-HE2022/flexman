@@ -452,7 +452,7 @@ char wait_for_keypress()
     newt = oldt;
 
     // Disable canonical mode and echoing
-    newt.c_lflag &= ~(ICANON | ECHO);
+    newt.c_lflag &= static_cast<tcflag_t>(~(ICANON | ECHO));
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     // Read a single character

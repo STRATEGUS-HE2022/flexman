@@ -205,7 +205,7 @@ auto perform_search_n_iterations(
                      steps_per_iteration,
                      time_per_iteration,
                      global_timer.elapsed().count(),
-                     manager->timeout);
+                     manager->timeout.count());
             break;
         }
     }
