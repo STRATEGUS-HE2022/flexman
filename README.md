@@ -1,7 +1,6 @@
 # FlexMan: Adaptive Scheduling and Optimization Library
 
 [![Ubuntu](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/ubuntu.yml)
-[![Windows](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/windows.yml/badge.svg)](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/windows.yml)
 [![MacOS](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/macos.yml/badge.svg)](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/macos.yml)
 [![Documentation](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/documentation.yml/badge.svg)](https://github.com/STRATEGUS-HE2022/flexman/actions/workflows/documentation.yml)
 

@@ -47,7 +47,7 @@ inline auto initialize_random_generator(double min_execution_time, double max_ex
 /// @param global_best The global best number of executions for the given mode.
 /// @param velocity Current velocity associated with the particle's mode.
 /// @param particle Current mode in the particle to be updated.
-constexpr inline void update_particle_velocity_and_position(
+inline void update_particle_velocity_and_position(
     const SolverParameters &parameters,
     const flexman::ModeExecution &personal_best,
     const flexman::ModeExecution &global_best,
@@ -87,7 +87,7 @@ constexpr inline void update_particle_velocity_and_position(
 /// @param global_best Global best solution across all particles.
 /// @param velocities Vector of velocities for each particle, representing the rate of change in execution counts.
 /// @param particles Vector of particles, where each particle contains a sequence of mode executions to be updated.
-constexpr inline void update_all_particles(
+inline void update_all_particles(
     const SolverParameters &parameters,
     const std::vector<std::vector<flexman::ModeExecution>> &personal_best,
     const std::vector<flexman::ModeExecution> &global_best,
