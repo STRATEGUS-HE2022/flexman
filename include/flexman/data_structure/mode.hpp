@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <sstream>
 #include <cstdint>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 namespace flexman
@@ -41,7 +41,6 @@ std::string to_string(const flexman::Mode<System, Input> &rhs)
     ss << rhs.id;
     return ss.str();
 }
-
 
 } // namespace flexman
 

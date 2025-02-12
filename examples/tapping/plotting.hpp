@@ -2,12 +2,12 @@
 /// @author Enrico Fraccaroli (enry.frak@gmail.com)
 /// @brief Plotting functions.
 
-#include <flexman/simulation/simulate.hpp>
-#include <flexman/serialization.hpp>
+#include <array>
 #include <flexman/logging.hpp>
+#include <flexman/serialization.hpp>
+#include <flexman/simulation/simulate.hpp>
 #include <gpcpp/gnuplot.hpp>
 #include <vector>
-#include <array>
 
 #include "defines.hpp"
 
@@ -26,7 +26,8 @@ inline std::array<float, 3> color_to_rgb(const std::vector<double> &color)
     if (color.size() != 3) {
         throw std::runtime_error("Color not RGB.");
     }
-    return std::array<float, 3>{ static_cast<float>(color[0]), static_cast<float>(color[1]), static_cast<float>(color[2]) };
+    return std::array<float, 3>{
+        static_cast<float>(color[0]), static_cast<float>(color[1]), static_cast<float>(color[2])};
 }
 
 /// @brief Builds the plot name string for a Pareto front.
@@ -53,7 +54,7 @@ inline std::pair<std::vector<double>, std::vector<double>> extract_time_energy(c
         time.push_back(solution.resources.time);
         energy.push_back(solution.resources.energy);
     }
-    return { time, energy };
+    return {time, energy};
 }
 
 /// @brief Extracts time and depth data from a list of solutions.
@@ -68,7 +69,7 @@ inline std::pair<std::vector<double>, std::vector<double>> extract_time_depth(co
         time.push_back(solution.resources.time);
         depth.push_back(solution.state[2]);
     }
-    return { time, depth };
+    return {time, depth};
 }
 
 /// @brief Rounds a number to the nearest multiple of a given value.
@@ -89,7 +90,8 @@ double round_to_multiple(double value, double multiple)
 /// @param margin_fraction The fraction of the range to use as margin.
 ///
 /// @return A pair of pairs: ((x_min, x_max), (y_min, y_max)) for x and y limits.
-std::pair<std::array<double, 2>, std::array<double, 2>> compute_global_limits(const tapping::result_t &results, double margin_fraction = 0.1)
+std::pair<std::array<double, 2>, std::array<double, 2>>
+compute_global_limits(const tapping::result_t &results, double margin_fraction = 0.1)
 {
     // Initialize min and max values with extreme values
     double x_min = std::numeric_limits<double>::max();
@@ -129,7 +131,7 @@ std::pair<std::array<double, 2>, std::array<double, 2>> compute_global_limits(co
     double x_margin = x_range * margin_fraction;
     double y_margin = y_range * margin_fraction;
 
-    return { { x_min - x_margin, x_max + x_margin }, { y_min - y_margin, y_max + y_margin } };
+    return {{x_min - x_margin, x_max + x_margin}, {y_min - y_margin, y_max + y_margin}};
 }
 
 /// @brief Plots the Pareto fronts from the given results.
@@ -180,9 +182,7 @@ inline void plot_pareto_front(const tapping::result_t &results)
         auto [time, energy] = extract_time_energy(pareto.solutions);
 
         // Create a step plot (stairs) for the current Pareto front.
-        gp.plot_xy(time, energy, build_plot_name(pareto))
-            .set_plot_type(gpcpp::plot_type_t::steps)
-            .set_line_width(2.0);
+        gp.plot_xy(time, energy, build_plot_name(pareto)).set_plot_type(gpcpp::plot_type_t::steps).set_line_width(2.0);
     }
 
     gp.show();
@@ -217,9 +217,9 @@ inline void plot_simulations(const std::vector<tapping::simulation_t> &simulatio
         auto [time, depth] = extract_time_depth(simulation.data.evolution);
 
         // Plot the Pareto front
-        gp.plot_xy(time, depth, simulation.name)        // Plot data
+        gp.plot_xy(time, depth, simulation.name)      // Plot data
             .set_plot_type(gpcpp::plot_type_t::steps) // Use step plot
-            .set_line_width(2.0);                       // Adjust line width
+            .set_line_width(2.0);                     // Adjust line width
     }
 
     // Display the completed plot

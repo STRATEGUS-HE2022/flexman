@@ -139,7 +139,7 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::ModeExecutio
 ///
 /// @param lhs The JSON node to read from.
 /// @param rhs The ModeExecution object to populate.
-/// 
+///
 /// @return A reference to the original JSON node.
 inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::ModeExecution &rhs)
 {
@@ -153,10 +153,10 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::ModeEx
 ///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Solution object to serialize.
-/// 
+///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
 inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Solution<State, Resources> &rhs)
@@ -172,10 +172,10 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Solution<Sta
 ///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Solution object to populate.
-/// 
+///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
 inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Solution<State, Resources> &rhs)
@@ -192,10 +192,10 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Soluti
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Manager object to serialize.
-/// 
+///
 /// @return A reference to the updated JSON node.
 template <typename System, typename State, typename Input, typename Mode, class Resources>
 inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Manager<State, Mode, Resources> &rhs)
@@ -216,10 +216,10 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Manager<Stat
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Manager object to populate.
-/// 
+///
 /// @return A reference to the original JSON node.
 template <typename System, typename State, typename Input, typename Mode, class Resources>
 inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Manager<State, Mode, Resources> &rhs)

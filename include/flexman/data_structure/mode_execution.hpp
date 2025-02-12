@@ -6,9 +6,9 @@
 
 #include "flexman/data_structure/mode.hpp"
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 #include <string>
 
 namespace flexman
@@ -24,7 +24,8 @@ struct ModeExecution {
     /// @param _mode The identifier of the mode.
     /// @param _times The number of times to execute the mode.
     ModeExecution(mode_id_t _mode, std::size_t _times)
-        : mode(_mode), times(_times)
+        : mode(_mode)
+        , times(_times)
     {
         // Nothing to do.
     }
@@ -33,8 +34,7 @@ struct ModeExecution {
     /// @param lhs The left-hand side ModeExecution.
     /// @param rhs The right-hand side ModeExecution.
     /// @return True if both mode and times are equal; false otherwise.
-    friend inline bool
-    operator==(const ModeExecution &lhs, const ModeExecution &rhs) noexcept
+    friend inline bool operator==(const ModeExecution &lhs, const ModeExecution &rhs) noexcept
     {
         return (lhs.mode == rhs.mode) && (lhs.times == rhs.times);
     }
@@ -56,7 +56,7 @@ inline void add_mode_execution_to_sequence(mode_id_t mode, std::vector<ModeExecu
 {
     if (sequence.empty() || (sequence.back().mode != mode)) {
         // Add new mode to the sequence if it's empty or different from the last.
-        sequence.emplace_back(ModeExecution{ mode, 1 });
+        sequence.emplace_back(ModeExecution{mode, 1});
     } else {
         // Increment the count if it's the same as the last mode.
         sequence.back().times++;

@@ -14,7 +14,8 @@ namespace flexman
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
 template <typename State, typename Mode, class Resources>
-class Manager {
+class Manager
+{
 public:
     State initial_state;         ///< Initial state.
     State target_state;          ///< Target state.
@@ -49,13 +50,17 @@ public:
     /// @param first The first solution.
     /// @param second The second solution.
     /// @return True if the first solution is better than the second, false otherwise.
-    virtual bool is_strictly_better_than(const Solution<State, Resources> &first, const Solution<State, Resources> &second) const = 0;
+    virtual bool is_strictly_better_than(
+        const Solution<State, Resources> &first,
+        const Solution<State, Resources> &second) const = 0;
 
     /// @brief Checks if one solution is better than another.
     /// @param first The first solution.
     /// @param second The second solution.
     /// @return True if the first solution is better than the second, false otherwise.
-    virtual bool is_probably_better_than(const Solution<State, Resources> &first, const Solution<State, Resources> &second) const = 0;
+    virtual bool is_probably_better_than(
+        const Solution<State, Resources> &first,
+        const Solution<State, Resources> &second) const = 0;
 
     /// @brief Compares a solution with another.
     /// @param first The first solution.

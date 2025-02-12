@@ -6,8 +6,8 @@
 
 #include <algorithm>
 #include <functional>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 #ifdef _WIN32
 #include <conio.h>
@@ -18,9 +18,9 @@
 
 #include <timelib/timer.hpp>
 
-#include "flexman/data_structure/solution.hpp"
 #include "flexman/data_structure/manager.hpp"
 #include "flexman/data_structure/mode.hpp"
+#include "flexman/data_structure/solution.hpp"
 #include "flexman/logging.hpp"
 
 namespace flexman::search
@@ -49,7 +49,10 @@ enum class SwitchingMode {
 /// @param level The log level to determine whether logging should occur.
 /// @param solutions The vector of solutions to log.
 template <typename State, typename Resources>
-static inline void log_solutions(quire::registry_t::value_t &logger, const quire::log_level level, const std::vector<Solution<State, Resources>> &solutions)
+static inline void log_solutions(
+    quire::registry_t::value_t &logger,
+    const quire::log_level level,
+    const std::vector<Solution<State, Resources>> &solutions)
 {
     // Check if the logger's level is set to debug or lower.
     if (logger.get_log_level() <= quire::log_level::debug) {
@@ -69,7 +72,8 @@ template <typename T>
 static inline void move_elements(std::vector<T> &source, std::vector<T> &destination)
 {
     // Move the elements to the destination vector.
-    destination.insert(destination.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
+    destination.insert(
+        destination.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
     // Optionally clear the source if required.
     source.clear();
 }
@@ -233,7 +237,8 @@ auto extend_solutions(
         // Simple case without any switching.
         else {
             // Simulate the given mode and store the new solution.
-            solutions.push_back(simulate_mode(manager, modes[partial.sequence.back().mode], steps_per_iteration, partial));
+            solutions.push_back(
+                simulate_mode(manager, modes[partial.sequence.back().mode], steps_per_iteration, partial));
         }
         // Check if the timer has expired.
         if (global_timer.has_timeout()) {
@@ -284,12 +289,10 @@ void remove_dominated_solutions(
     // Erase the solutions that are dominated.
     solutions.erase(
         std::remove_if(
-            solutions.begin(),
-            solutions.end(),
+            solutions.begin(), solutions.end(),
             [&](const Solution<State, Resources> &solution) {
                 return std::any_of(
-                    solutions_to_check_against.begin(),
-                    solutions_to_check_against.end(),
+                    solutions_to_check_against.begin(), solutions_to_check_against.end(),
                     [&](const auto &other_solution) {
                         if constexpr (Algorithm == SearchAlgorithm::Heuristic) {
                             return manager->is_probably_better_than(other_solution, solution);
@@ -419,11 +422,9 @@ void split_complete_partial(
         qdebug(logging::common, "[%8u] Before splitting among complete and partial solutions.\n", solutions.size());
 
         // Partition the solutions into complete and partial in-place.
-        auto it = std::partition(
-            solutions.begin(), solutions.end(),
-            [&manager](const auto &solution) -> bool {
-                return manager->is_complete(solution);
-            });
+        auto it = std::partition(solutions.begin(), solutions.end(), [&manager](const auto &solution) -> bool {
+            return manager->is_complete(solution);
+        });
 
         // Move the complete solutions to the complete vector.
         std::move(solutions.begin(), it, std::back_inserter(complete));
@@ -435,8 +436,9 @@ void split_complete_partial(
         solutions.clear();
 
         // We split between complete solutions and partial ones.
-        qdebug(logging::common, "[%8u] After among complete and partial solutions [complete: %8u, partial: %8u]\n",
-               solutions.size(), complete.size(), partial.size());
+        qdebug(
+            logging::common, "[%8u] After among complete and partial solutions [complete: %8u, partial: %8u]\n",
+            solutions.size(), complete.size(), partial.size());
     }
 }
 

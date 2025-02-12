@@ -7,12 +7,12 @@
 #include "flexman/data_structure/mode.hpp"
 #include "flexman/data_structure/result.hpp"
 #include "flexman/data_structure/solution.hpp"
-#include "flexman/search/common.hpp"
 #include "flexman/logging.hpp"
+#include "flexman/search/common.hpp"
 
-#include <timelib/timer.hpp>
 #include <algorithm>
 #include <cmath>
+#include <timelib/timer.hpp>
 
 namespace flexman::search
 {
@@ -58,9 +58,11 @@ void perform_search_single_iteration(
 
     // First, we need t extend the partial solutions we have.
     if (Algorithm == SearchAlgorithm::SingleMachine) {
-        extended = extend_solutions<SwitchingMode::None>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
+        extended =
+            extend_solutions<SwitchingMode::None>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
     } else {
-        extended = extend_solutions<SwitchingMode::Free>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
+        extended =
+            extend_solutions<SwitchingMode::Free>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
     }
     flexman::search::log_solutions(logging::solution, quire::debug, extended);
 
@@ -141,7 +143,7 @@ auto perform_search_n_iterations(
         partial_solutions.push_back(
             // Initial solution.
             Solution<State, Resources>{
-                .sequence  = { { mode.id, 0 } },                 // Empty sequence initially.
+                .sequence  = {{mode.id, 0}},                     // Empty sequence initially.
                 .state     = manager->initial_state,             // Start from the initial state.
                 .resources = Resources(),                        // Initialize resources.
                 .distance  = std::numeric_limits<double>::max(), // Initialize the distance to maximum.
@@ -163,8 +165,9 @@ auto perform_search_n_iterations(
     // Determine the maximum number of steps allowed.
     const unsigned max_iterations = static_cast<unsigned>(manager->time_max / time_per_iteration);
 
-    qinfo(logging::round, "\nPerform %6u iterations maximum, with %5u steps per iteration, each simulating %7.2f.\n",
-          max_iterations, steps_per_iteration, time_per_iteration);
+    qinfo(
+        logging::round, "\nPerform %6u iterations maximum, with %5u steps per iteration, each simulating %7.2f.\n",
+        max_iterations, steps_per_iteration, time_per_iteration);
 
     // Perform the search for the specified number of steps or until no partial solutions remain.
     unsigned iteration = 0;
@@ -174,12 +177,7 @@ auto perform_search_n_iterations(
 
         // Perform a single iteration of the search process.
         flexman::search::perform_search_single_iteration<Algorithm>(
-            manager,
-            modes,
-            steps_per_iteration,
-            partial_solutions,
-            accepted_solutions,
-            global_timer);
+            manager, modes, steps_per_iteration, partial_solutions, accepted_solutions, global_timer);
 
         ++iteration;
 
@@ -199,13 +197,11 @@ auto perform_search_n_iterations(
         flexman::search::log_solutions(logging::solution, quire::debug, partial_solutions);
 
         if (global_timer.has_timeout()) {
-            qwarning(logging::round, "Iteration index %2u of %3u (Steps: %d, Length: %.2f), went into timeout (%.2f > %.2f).\n",
-                     iteration,
-                     max_iterations,
-                     steps_per_iteration,
-                     time_per_iteration,
-                     global_timer.elapsed().count(),
-                     manager->timeout.count());
+            qwarning(
+                logging::round,
+                "Iteration index %2u of %3u (Steps: %d, Length: %.2f), went into timeout (%.2f > %.2f).\n", iteration,
+                max_iterations, steps_per_iteration, time_per_iteration, global_timer.elapsed().count(),
+                manager->timeout.count());
             break;
         }
     }
@@ -283,7 +279,7 @@ auto perform_search(
         // Calculate the time covered in each iteration.
         const double time_per_iteration = manager->time_delta * static_cast<double>(steps_per_iteration);
         // Determine the maximum number of steps allowed.
-        const unsigned max_iterations = static_cast<unsigned>(manager->time_max / time_per_iteration);
+        const unsigned max_iterations   = static_cast<unsigned>(manager->time_max / time_per_iteration);
         qinfo(logging::search, "| %14u | %19u | %10.6f |\n", max_iterations, steps_per_iteration, time_per_iteration);
     }
     qinfo(logging::search, "\n");
@@ -294,11 +290,7 @@ auto perform_search(
     for (unsigned steps_per_iteration = init_stride; steps_per_iteration >= 1; steps_per_iteration /= 2) {
         // Perform a single-pass search.
         pareto_front = flexman::search::perform_search_n_iterations<Algorithm>(
-            manager,
-            modes,
-            steps_per_iteration,
-            pareto_front,
-            global_timer);
+            manager, modes, steps_per_iteration, pareto_front, global_timer);
 
         // Add the pareto front only if it has solutions.
         if (!pareto_front.solutions.empty()) {
@@ -311,7 +303,9 @@ auto perform_search(
             // Pause the timer.
             global_timer.pause();
 
-            qwarning(logging::search, "Press 'c' to continue the search, 'r' resume and disable interactive, 'q' to stop it now.\n");
+            qwarning(
+                logging::search,
+                "Press 'c' to continue the search, 'r' resume and disable interactive, 'q' to stop it now.\n");
 
             do {
                 char c = flexman::search::wait_for_keypress();

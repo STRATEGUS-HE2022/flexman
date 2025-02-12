@@ -2,36 +2,26 @@
 /// @author Enrico Fraccaroli (enry.frak@gmail.com)
 /// @brief
 
+#include "builder.hpp"
+#include "defines.hpp"
 #include "fsmlib_support.hpp"
 #include "plotting.hpp"
-#include "defines.hpp"
-#include "builder.hpp"
 #include "search.hpp"
 
-#include <flexman/simulation/simulate.hpp>
-#include <flexman/serialization.hpp>
-#include <flexman/pso/optimize.hpp>
-#include <cmdlp/parser.hpp>
 #include <cmath>
+#include <cmdlp/parser.hpp>
+#include <flexman/pso/optimize.hpp>
+#include <flexman/serialization.hpp>
+#include <flexman/simulation/simulate.hpp>
 
 namespace tapping
 {
 
-enum run_option {
-    run_search,
-    run_simulation
-};
+enum run_option { run_search, run_simulation };
 
-enum mode_option {
-    mode_discrete,
-    mode_continuous
-};
+enum mode_option { mode_discrete, mode_continuous };
 
-enum algorithm_type {
-    algorithm_heuristic,
-    algorithm_exhaustive,
-    algorithm_single_machine
-};
+enum algorithm_type { algorithm_heuristic, algorithm_exhaustive, algorithm_single_machine };
 
 /// @brief Compares two solutions for ascending order based on energy and time.
 /// @param lhs The first solution to compare.
@@ -55,7 +45,9 @@ inline void log_results(quire::log_level log_level, const tapping::result_t &res
     qlog(flexman::logging::app, log_level, "============================================================\n");
     for (const auto &pareto : results.pareto_fronts) {
         // Log the Pareto front metadata (step length and runtime).
-        qlog(flexman::logging::app, log_level, "Pareto front (step: %8.3f s, runtime: %8.3f s):\n", pareto.step_length, pareto.runtime);
+        qlog(
+            flexman::logging::app, log_level, "Pareto front (step: %8.3f s, runtime: %8.3f s):\n", pareto.step_length,
+            pareto.runtime);
         // Log each solution in the Pareto front.
         for (const auto &solution : pareto.solutions) {
             qlog(flexman::logging::app, log_level, "\t%s\n", flexman::to_string(solution).c_str());
@@ -71,7 +63,8 @@ inline void log_results(quire::log_level log_level, const tapping::result_t &res
 /// @param num The number of elements.
 /// @return The generated vector.
 template <typename T>
-[[nodiscard]] inline auto linspace(T start, T stop, unsigned num = 100)
+[[nodiscard]]
+inline auto linspace(T start, T stop, unsigned num = 100)
 {
     std::vector<T> result(num, 1);
     if (num == 0) {
@@ -122,8 +115,7 @@ std::string compare_state(double value1, double value2)
 }
 
 template <typename State, typename Resources>
-void compare_results(const flexman::Result<State, Resources> &result1,
-                     const flexman::Result<State, Resources> &result2)
+void compare_results(const flexman::Result<State, Resources> &result1, const flexman::Result<State, Resources> &result2)
 {
     std::string improved  = std::string(quire::ansi::fg::bright_green) + "improved" + quire::ansi::util::reset;
     std::string worsened  = std::string(quire::ansi::fg::bright_red) + "worsened" + quire::ansi::util::reset;
@@ -132,10 +124,8 @@ void compare_results(const flexman::Result<State, Resources> &result1,
     // Compare the number of Pareto fronts.
     if (result1.pareto_fronts.size() != result2.pareto_fronts.size()) {
         qwarning(
-            flexman::logging::app,
-            "Results differ in the number of Pareto fronts (%u vs %u)\n.",
-            result1.pareto_fronts.size(),
-            result2.pareto_fronts.size());
+            flexman::logging::app, "Results differ in the number of Pareto fronts (%u vs %u)\n.",
+            result1.pareto_fronts.size(), result2.pareto_fronts.size());
         return;
     }
     // Compare each Pareto front.
@@ -146,11 +136,8 @@ void compare_results(const flexman::Result<State, Resources> &result1,
         // Compare the number of solutions in each Pareto front
         if (front1.solutions.size() != front2.solutions.size()) {
             qwarning(
-                flexman::logging::app,
-                "Pareto front %u differ in the number of solutions (%u vs %u)\n.",
-                i + 1,
-                front1.solutions.size(),
-                front2.solutions.size());
+                flexman::logging::app, "Pareto front %u differ in the number of solutions (%u vs %u)\n.", i + 1,
+                front1.solutions.size(), front2.solutions.size());
             continue;
         }
 
@@ -164,15 +151,10 @@ void compare_results(const flexman::Result<State, Resources> &result1,
 
             qinfo(
                 flexman::logging::app,
-                "Solution %2u in Pareto Front %2u, it's %s in time (%8.4f -> %8.4f), and it's %s in energy (%8.4f -> %8.4f).\n",
-                j + 1,
-                i + 1,
-                time_comparison.c_str(),
-                sol1.resources.time,
-                sol2.resources.time,
-                energy_comparison.c_str(),
-                sol1.resources.energy,
-                sol2.resources.energy);
+                "Solution %2u in Pareto Front %2u, it's %s in time (%8.4f -> %8.4f), and it's %s in energy (%8.4f -> "
+                "%8.4f).\n",
+                j + 1, i + 1, time_comparison.c_str(), sol1.resources.time, sol2.resources.time,
+                energy_comparison.c_str(), sol1.resources.energy, sol2.resources.energy);
         }
     }
 }
@@ -235,7 +217,8 @@ void setup_option_parser(cmdlp::Parser &parser)
     parser.addToggle("-p", "--pso", "Enable post-search optimization using PSO", false);
     parser.addOption("-pn", "--pso_num_particles", "Number of particles in the PSO swarm", 100, false);
     parser.addOption("-pm", "--pso_max_iterations", "Maximum number of iterations for PSO", 50, false);
-    parser.addOption("-pi", "--pso_inertia", "Inertia weight for PSO (controls exploration vs exploitation)", .2, false);
+    parser.addOption(
+        "-pi", "--pso_inertia", "Inertia weight for PSO (controls exploration vs exploitation)", .2, false);
     parser.addOption("-pc", "--pso_cognitive", "Cognitive weight for PSO (influence of personal best)", .4, false);
     parser.addOption("-ps", "--pso_social", "Social weight for PSO (influence of global best)", .4, false);
     // Set the output file.
@@ -272,8 +255,8 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
 {
     // Search parameters.
     tapping::discrete_search_t search;
-    search.initial_state = { 0, 0, 0 };
-    search.target_state  = { 0, 0, parser.getOption<double>("--depth") };
+    search.initial_state = {0, 0, 0};
+    search.target_state  = {0, 0, parser.getOption<double>("--depth")};
     search.time_max      = parser.getOption<double>("--time_max");
     search.time_delta    = parser.getOption<double>("--time_delta");
     search.threshold     = parser.getOption<double>("--threshold");
@@ -288,8 +271,7 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
 
     // Create the gear factors.
     const auto gear_factors = tapping::linspace<double>(
-        parser.getOption<unsigned>("--max_gear"),
-        parser.getOption<unsigned>("--min_gear"),
+        parser.getOption<unsigned>("--max_gear"), parser.getOption<unsigned>("--min_gear"),
         parser.getOption<unsigned>("--num_gear"));
 
     // Vector of model builders.
@@ -312,11 +294,14 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
 
         qinfo(flexman::logging::app, "Searching...\n");
         if (algorithm == algorithm_heuristic) {
-            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Heuristic>(&search, modes, iterations);
+            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Heuristic>(
+                &search, modes, iterations);
         } else if (algorithm == algorithm_exhaustive) {
-            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Exhaustive>(&search, modes, iterations);
+            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Exhaustive>(
+                &search, modes, iterations);
         } else if (algorithm == algorithm_single_machine) {
-            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::SingleMachine>(&search, modes, iterations);
+            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::SingleMachine>(
+                &search, modes, iterations);
         }
 
         // Sort the results.
@@ -329,12 +314,7 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
         tapping::log_results(quire::info, results);
 
         // Save results.
-        tapping::save_results(
-            search,
-            results,
-            parameters,
-            modes,
-            parser.getOption<std::string>("--output"));
+        tapping::save_results(search, results, parameters, modes, parser.getOption<std::string>("--output"));
 
         // Apply PSO if requested.
         if (parser.getOption<bool>("--pso")) {
@@ -370,11 +350,10 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
         for (const auto &mode : modes) {
-            simulations.emplace_back(
-                tapping::simulation_t{
-                    .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
-                    .name = "Mode " + std::to_string(mode.id),
-                });
+            simulations.emplace_back(tapping::simulation_t{
+                .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
+                .name = "Mode " + std::to_string(mode.id),
+            });
         }
 
         // Plot the results.
@@ -391,8 +370,8 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
 {
     // Search parameters.
     tapping::continuous_search_t search;
-    search.initial_state = { 0, 0, 0 };
-    search.target_state  = { 0, 0, parser.getOption<double>("--depth") };
+    search.initial_state = {0, 0, 0};
+    search.target_state  = {0, 0, parser.getOption<double>("--depth")};
     search.time_max      = parser.getOption<double>("--time_max");
     search.time_delta    = parser.getOption<double>("--time_delta");
     search.threshold     = parser.getOption<double>("--threshold");
@@ -407,8 +386,7 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
 
     // Create the gear factors.
     const auto gear_factors = tapping::linspace<double>(
-        parser.getOption<unsigned>("--max_gear"),
-        parser.getOption<unsigned>("--min_gear"),
+        parser.getOption<unsigned>("--max_gear"), parser.getOption<unsigned>("--min_gear"),
         parser.getOption<unsigned>("--num_gear"));
 
     // Vector of model builders.
@@ -431,11 +409,14 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
 
         qinfo(flexman::logging::app, "Searching...\n");
         if (algorithm == algorithm_heuristic) {
-            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Heuristic>(&search, modes, iterations);
+            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Heuristic>(
+                &search, modes, iterations);
         } else if (algorithm == algorithm_exhaustive) {
-            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Exhaustive>(&search, modes, iterations);
+            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::Exhaustive>(
+                &search, modes, iterations);
         } else if (algorithm == algorithm_single_machine) {
-            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::SingleMachine>(&search, modes, iterations);
+            results = flexman::search::perform_search<flexman::search::SearchAlgorithm::SingleMachine>(
+                &search, modes, iterations);
         }
 
         // Sort the results.
@@ -448,12 +429,7 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
         tapping::log_results(quire::info, results);
 
         // Save the results.
-        tapping::save_results(
-            search,
-            results,
-            parameters,
-            modes,
-            parser.getOption<std::string>("--output"));
+        tapping::save_results(search, results, parameters, modes, parser.getOption<std::string>("--output"));
 
         // Apply PSO if requested.
         if (parser.getOption<bool>("--pso")) {
@@ -489,11 +465,10 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
         for (const auto &mode : modes) {
-            simulations.emplace_back(
-                tapping::simulation_t{
-                    .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
-                    .name = "Mode " + std::to_string(mode.id),
-                });
+            simulations.emplace_back(tapping::simulation_t{
+                .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
+                .name = "Mode " + std::to_string(mode.id),
+            });
         }
 
         // Plot the results.
@@ -531,11 +506,16 @@ int main(int argc, char *argv[])
     flexman::logging::round.set_log_level(log_level);
     flexman::logging::app.set_log_level(log_level);
     if (log_level == quire::log_level::debug) {
-        flexman::logging::solution.configure({ quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location });
-        flexman::logging::common.configure({ quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location });
-        flexman::logging::search.configure({ quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location });
-        flexman::logging::round.configure({ quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location });
-        flexman::logging::app.configure({ quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location });
+        flexman::logging::solution.configure(
+            {quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location});
+        flexman::logging::common.configure(
+            {quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location});
+        flexman::logging::search.configure(
+            {quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location});
+        flexman::logging::round.configure(
+            {quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location});
+        flexman::logging::app.configure(
+            {quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location});
     }
 
     if (parser.getOption<unsigned>("-m") == tapping::mode_discrete) {

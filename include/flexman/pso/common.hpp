@@ -6,9 +6,9 @@
 
 #include <timelib/timespec.hpp>
 
-#include <functional>
 #include <algorithm>
 #include <array>
+#include <functional>
 
 namespace flexman::pso
 {

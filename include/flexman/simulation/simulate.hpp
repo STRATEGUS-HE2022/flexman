@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "flexman/simulation/common.hpp"
 #include "flexman/search/common.hpp"
+#include "flexman/simulation/common.hpp"
 
 namespace flexman::simulation
 {
@@ -83,17 +83,15 @@ inline void simulate_one_step(
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param manager Pointer to the manager handling the simulation.
 /// @param mode The mode being simulated.
 /// @param steps The number of steps to simulate.
-/// 
+///
 /// @return A vector containing the solution at each step.
 template <typename State, typename Mode, typename Resources>
-inline auto simulate_single_mode(
-    const flexman::Manager<State, Mode, Resources> *manager,
-    const Mode &mode,
-    const unsigned steps)
+inline auto
+simulate_single_mode(const flexman::Manager<State, Mode, Resources> *manager, const Mode &mode, const unsigned steps)
 {
     // Check for null pointer in manager.
     if (manager == nullptr) {

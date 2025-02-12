@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "parameters.hpp"
 #include "defines.hpp"
+#include "parameters.hpp"
 
 namespace tapping
 {
@@ -26,26 +26,22 @@ struct builder_t : public parameters_t {
         // Create the mode.
         continous_mode_t mode;
         mode.id       = id;
-        mode.input    = { V, Fs };
-        mode.system.A = {
-            { -Kb / J, Kt / J, -Fd * Gr / J },
-            { -Ke / L, -R / L, 0.0 },
-            { R2D, 0.0, 0.0 }
-        };
+        mode.input    = {V, Fs};
+        mode.system.A = {{-Kb / J, Kt / J, -Fd * Gr / J}, {-Ke / L, -R / L, 0.0}, {R2D, 0.0, 0.0}};
         mode.system.B = {
-            { 0, -Gr / J },
-            { 1 / L, 0.0 },
-            { 0.0, 0.0 },
+            {0, -Gr / J},
+            {1 / L, 0.0},
+            {0.0, 0.0},
         };
         mode.system.C = {
-            { 1, 0, 0 },
-            { 0, 1, 0 },
-            { 0, 0, 1 },
+            {1, 0, 0},
+            {0, 1, 0},
+            {0, 0, 1},
         };
         mode.system.D = {
-            { 0, 0 },
-            { 0, 0 },
-            { 0, 0 },
+            {0, 0},
+            {0, 0},
+            {0, 0},
         };
         return mode;
     }

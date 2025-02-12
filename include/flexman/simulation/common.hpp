@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "flexman/data_structure/solution.hpp"
 #include "flexman/data_structure/mode.hpp"
+#include "flexman/data_structure/solution.hpp"
 
 namespace flexman::simulation
 {

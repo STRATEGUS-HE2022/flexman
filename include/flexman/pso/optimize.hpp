@@ -6,8 +6,8 @@
 
 #include "flexman/data_structure/manager.hpp"
 #include "flexman/data_structure/result.hpp"
-#include "flexman/simulation/simulate.hpp"
 #include "flexman/pso/common.hpp"
+#include "flexman/simulation/simulate.hpp"
 
 #include <random>
 
@@ -31,7 +31,7 @@ inline auto initialize_random_generator(double min_execution_time, double max_ex
     std::uniform_real_distribution<double> dist(min_execution_time, max_execution_time);
 
     // Return the generator and distribution.
-    return { gen, dist };
+    return {gen, dist};
 }
 
 /// @brief Updates the velocity and position (number of executions) of a single
@@ -58,10 +58,12 @@ inline void update_particle_velocity_and_position(
     double inertia_contribution = parameters.inertia * velocity;
 
     // Contribution from the personal best mode (cognitive component).
-    double cognitive_contribution = parameters.cognitive * (static_cast<double>(personal_best.times) - static_cast<double>(particle.times));
+    double cognitive_contribution =
+        parameters.cognitive * (static_cast<double>(personal_best.times) - static_cast<double>(particle.times));
 
     // Contribution from the global best mode (social component).
-    double social_contribution = parameters.social * (static_cast<double>(global_best.times) - static_cast<double>(particle.times));
+    double social_contribution =
+        parameters.social * (static_cast<double>(global_best.times) - static_cast<double>(particle.times));
 
     // Combine all contributions to update the velocity.
     velocity = inertia_contribution + cognitive_contribution + social_contribution;
@@ -209,7 +211,7 @@ auto optimize_solution(
     // Initialize personal and global best fitness values.
     std::vector<double> personal_best_fitness(parameters.num_particles, std::numeric_limits<double>::max());
     std::vector<flexman::ModeExecution> global_best = initial_solution.sequence;
-    double global_best_fitness                      = initial_solution.resources.energy + initial_solution.resources.time;
+    double global_best_fitness = initial_solution.resources.energy + initial_solution.resources.time;
 
     // Initialize the random number generator and distribution for execution counts.
     auto [gen, dist] = initialize_random_generator(1.0, 10.0);
@@ -228,7 +230,8 @@ auto optimize_solution(
         // Randomize the number of executions (`times`) for each mode in the particle.
         for (auto &mode_exec : particles[i]) {
             // Add randomness while retaining structure.
-            mode_exec.times = static_cast<std::size_t>(std::max(static_cast<double>(mode_exec.times) + dist(gen) - 5.0, 1.0));
+            mode_exec.times =
+                static_cast<std::size_t>(std::max(static_cast<double>(mode_exec.times) + dist(gen) - 5.0, 1.0));
         }
     }
 
@@ -261,13 +264,9 @@ auto optimize_solution(
             particles);    // Current particles being updated.
 
         // Print the progress of the PSO process.
-        qinfo(logging::pso,
-              "        Iteration %2u/%2u, best fitness: %6.2f, valid solutions: %3u/%3u\r",
-              iteration + 1,
-              parameters.max_iterations,
-              global_best_fitness,
-              valid_solution_count,
-              parameters.num_particles);
+        qinfo(
+            logging::pso, "        Iteration %2u/%2u, best fitness: %6.2f, valid solutions: %3u/%3u\r", iteration + 1,
+            parameters.max_iterations, global_best_fitness, valid_solution_count, parameters.num_particles);
     }
 
     // Move to the next line in the output after progress updates.
@@ -305,12 +304,7 @@ auto optimize_pareto_front(
     std::size_t index = 1, total = pareto_front.solutions.size();
     for (const auto &solution : pareto_front.solutions) {
         qinfo(logging::pso, "    Optimize solution %3u/%3u...\n", index++, total);
-        optimized.solutions.emplace_back(
-            optimize_solution(
-                manager,
-                parameters,
-                modes,
-                solution));
+        optimized.solutions.emplace_back(optimize_solution(manager, parameters, modes, solution));
     }
     return optimized;
 }
@@ -338,14 +332,9 @@ auto optimize_result(
 
     std::size_t index = 1, total = result.pareto_fronts.size();
     for (const auto &pareto_front : result.pareto_fronts) {
-        qinfo(logging::pso, "Optimize Pareto front (step: %6.2f) %3u/%3u...\n",
-              pareto_front.step_length, index++, total);
-        optimized.pareto_fronts.emplace_back(
-            optimize_pareto_front(
-                manager,
-                parameters,
-                modes,
-                pareto_front));
+        qinfo(
+            logging::pso, "Optimize Pareto front (step: %6.2f) %3u/%3u...\n", pareto_front.step_length, index++, total);
+        optimized.pareto_fronts.emplace_back(optimize_pareto_front(manager, parameters, modes, pareto_front));
     }
     return optimized;
 }

@@ -20,7 +20,7 @@ struct Result {
     std::vector<ParetoFront<State, Resources>> pareto_fronts; ///< The set of Pareto fronts.
 
     /// @brief Calculates the total runtime across all Pareto fronts.
-    /// 
+    ///
     /// @return The total runtime as a double.
     auto get_total_runtime() const
     {
@@ -33,13 +33,12 @@ struct Result {
     }
 };
 
-
 /// @brief Converts a Result object to a string representation.
 ///
 /// @tparam State The type representing the system's state.
 /// @tparam Resources The type representing the system's resources.
 /// @param result The Result object to convert to a string.
-/// @return A string summarizing the Result, including total runtime and 
+/// @return A string summarizing the Result, including total runtime and
 /// the number of Pareto fronts.
 template <typename State, typename Resources>
 std::string to_string(const flexman::Result<State, Resources> &result)

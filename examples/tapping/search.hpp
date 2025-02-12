@@ -6,14 +6,15 @@
 
 #include "builder.hpp"
 
-#include <numint/stepper/stepper_rk4.hpp>
 #include <numint/detail/observer.hpp>
 #include <numint/solver.hpp>
+#include <numint/stepper/stepper_rk4.hpp>
 
 namespace tapping
 {
 
-class discrete_search_t : public flexman::Manager<state_t, discrete_mode_t, resources_t> {
+class discrete_search_t : public flexman::Manager<state_t, discrete_mode_t, resources_t>
+{
 public:
     discrete_search_t() = default;
 
@@ -29,15 +30,9 @@ public:
         solution.resources.time += time_delta;
     }
 
-    double distance(const solution_t &solution) const override
-    {
-        return target_state[2] - solution.state[2];
-    }
+    double distance(const solution_t &solution) const override { return target_state[2] - solution.state[2]; }
 
-    bool is_complete(const solution_t &solution) const override
-    {
-        return this->distance(solution) < threshold;
-    }
+    bool is_complete(const solution_t &solution) const override { return this->distance(solution) < threshold; }
 
     bool is_strictly_better_than(const solution_t &x, const solution_t &y) const override
     {
@@ -84,7 +79,8 @@ public:
     }
 };
 
-class continuous_search_t : public flexman::Manager<state_t, continous_mode_t, resources_t> {
+class continuous_search_t : public flexman::Manager<state_t, continous_mode_t, resources_t>
+{
 public:
     continuous_search_t() = default;
 
@@ -97,18 +93,13 @@ public:
         double step_size = time_delta / 100;
         // Perform integration.
         numint::integrate_fixed(
-            solver,
-            observer,
+            solver, observer,
             [&](const state_t &x, state_t &dxdt, double) {
                 // Advance system state.
                 dxdt = fsmlib::multiply(mode.system.A, x) + fsmlib::multiply(mode.system.B, mode.input);
             },
-            solution.state,
-            solution.resources.time, solution.resources.time + time_delta,
-            step_size,
-            [&](const state_t &x) {
-                return (target_state[2] - x[2]) < threshold;
-            });
+            solution.state, solution.resources.time, solution.resources.time + time_delta, step_size,
+            [&](const state_t &x) { return (target_state[2] - x[2]) < threshold; });
         // Update the distance.
         solution.distance = this->distance(solution);
         // Update energy.
@@ -117,15 +108,9 @@ public:
         solution.resources.time += time_delta;
     }
 
-    double distance(const solution_t &solution) const override
-    {
-        return target_state[2] - solution.state[2];
-    }
+    double distance(const solution_t &solution) const override { return target_state[2] - solution.state[2]; }
 
-    bool is_complete(const solution_t &solution) const override
-    {
-        return this->distance(solution) < threshold;
-    }
+    bool is_complete(const solution_t &solution) const override { return this->distance(solution) < threshold; }
 
     bool is_strictly_better_than(const solution_t &x, const solution_t &y) const override
     {

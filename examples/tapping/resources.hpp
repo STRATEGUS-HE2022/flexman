@@ -5,8 +5,8 @@
 #include <fsmlib/feq.hpp>
 #include <json/json.hpp>
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 namespace tapping
 {

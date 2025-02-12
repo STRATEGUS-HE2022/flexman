@@ -33,7 +33,8 @@ struct Solution {
     /// @param rhs The right-hand side solution.
     ///
     /// @return True if the sequences or resources are equal, otherwise false.
-    friend inline bool operator==(const flexman::Solution<State, Resources> &lhs, const flexman::Solution<State, Resources> &rhs) noexcept
+    friend inline bool
+    operator==(const flexman::Solution<State, Resources> &lhs, const flexman::Solution<State, Resources> &rhs) noexcept
     {
         return (lhs.sequence == rhs.sequence) || (lhs.resources == rhs.resources);
     }
@@ -44,7 +45,8 @@ struct Solution {
     /// @param rhs The right-hand side solution.
     ///
     /// @return True if the sequences differ and the resources of lhs are less than rhs.
-    friend inline bool operator<(const flexman::Solution<State, Resources> &lhs, const flexman::Solution<State, Resources> &rhs) noexcept
+    friend inline bool
+    operator<(const flexman::Solution<State, Resources> &lhs, const flexman::Solution<State, Resources> &rhs) noexcept
     {
         return (lhs.sequence != rhs.sequence) && (lhs.resources < rhs.resources);
     }
@@ -66,8 +68,8 @@ inline std::string to_string(const flexman::Solution<State, Resources> &rhs)
     ss << "resources: " << rhs.resources << ", ";
     ss << "sequence:[ ";
     for (std::size_t i = 0u; i < rhs.sequence.size(); ++i) {
-        ss << std::setw(2) << std::right << static_cast<unsigned>(rhs.sequence[i].mode) << "*"
-           << std::setw(3) << std::left << rhs.sequence[i].times;
+        ss << std::setw(2) << std::right << static_cast<unsigned>(rhs.sequence[i].mode) << "*" << std::setw(3)
+           << std::left << rhs.sequence[i].times;
         if (i < rhs.sequence.size()) {
             ss << " ";
         }
