@@ -8,6 +8,12 @@
 
 #include <fsmlib/control.hpp>
 
+#include <flexman/data_structure/mode.hpp>
+#include <flexman/data_structure/result.hpp>
+#include <flexman/data_structure/solution.hpp>
+#include <flexman/data_structure/pareto_front.hpp>
+#include <flexman/simulation/common.hpp>
+
 namespace tapping
 {
 
