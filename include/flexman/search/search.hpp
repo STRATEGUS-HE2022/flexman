@@ -199,7 +199,7 @@ auto perform_search_n_iterations(
     const auto max_iterations = static_cast<unsigned>(manager->time_max / time_per_iteration);
 
     qinfo(
-        logging::round, "\nPerform %6u iterations maximum, with %5u steps per iteration, each simulating %7.2f.\n",
+        logging::round, "Perform %6u iterations maximum, with %5u steps per iteration, each simulating %7.2f.\n",
         max_iterations, steps_per_iteration, time_per_iteration);
 
     // Perform the search for the specified number of steps or until no partial solutions remain.

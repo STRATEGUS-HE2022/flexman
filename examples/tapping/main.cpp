@@ -250,27 +250,27 @@ void setup_option_parser(cmdlp::Parser &parser)
         std::to_string(algorithm_heuristic));
     // Post-search optimization.
     parser.addToggle("-p", "--pso", "Enable post-search optimization using PSO", false);
-    parser.addOption("-pn", "--pso_num_particles", "Number of particles in the PSO swarm", 100, false);
-    parser.addOption("-pm", "--pso_max_iterations", "Maximum number of iterations for PSO", 50, false);
+    parser.addOption("-pn", "--pso_num_particles", "Number of particles in the PSO swarm", false, 100);
+    parser.addOption("-pm", "--pso_max_iterations", "Maximum number of iterations for PSO", false, 50);
     parser.addOption(
-        "-pi", "--pso_inertia", "Inertia weight for PSO (controls exploration vs exploitation)", .2, false);
-    parser.addOption("-pc", "--pso_cognitive", "Cognitive weight for PSO (influence of personal best)", .4, false);
-    parser.addOption("-ps", "--pso_social", "Social weight for PSO (influence of global best)", .4, false);
+        "-pi", "--pso_inertia", "Inertia weight for PSO (controls exploration vs exploitation)", false, .2);
+    parser.addOption("-pc", "--pso_cognitive", "Cognitive weight for PSO (influence of personal best)", false, .4);
+    parser.addOption("-ps", "--pso_social", "Social weight for PSO (influence of global best)", false, .4);
     // Set the output file.
-    parser.addOption("-o", "--output", "The file where the execution results are saved", "output.json", false);
+    parser.addOption("-o", "--output", "The file where the execution results are saved", false, "output.json");
     // Search parameters.
-    parser.addOption("-dp", "--depth", "The target tapping depth", 40.0, false);
-    parser.addOption("-tm", "--time_max", "The maximum simulated time", 120.0, false);
-    parser.addOption("-td", "--time_delta", "The time delta", 0.01, false);
-    parser.addOption("-th", "--threshold", "Used to determine when a solution is considered complete", 0.01, false);
-    parser.addOption("-dl", "--timeout", "For how long is the algorithm supposed to run approximately", 120.0, false);
+    parser.addOption("-dp", "--depth", "The target tapping depth", false, 40.0);
+    parser.addOption("-tm", "--time_max", "The maximum simulated time", false, 120.0);
+    parser.addOption("-td", "--time_delta", "The time delta", false, 0.01);
+    parser.addOption("-th", "--threshold", "Used to determine when a solution is considered complete", false, 0.01);
+    parser.addOption("-dl", "--timeout", "For how long is the algorithm supposed to run approximately", false, 120.0);
     parser.addToggle("-in", "--interactive", "Enable the interactive mode", false);
     // Search manager parameters.
-    parser.addOption("-it", "--iterations", "The number of iterations for the search", 12U, false);
+    parser.addOption("-it", "--iterations", "The number of iterations for the search", false, 12U);
     // Gear factors parameters.
-    parser.addOption("-gu", "--min_gear", "The minimum gear range", 5U, false);
-    parser.addOption("-gl", "--max_gear", "The maximum gear range", 50U, false);
-    parser.addOption("-gn", "--num_gear", "The minimum gear range", 8U, false);
+    parser.addOption("-gu", "--min_gear", "The minimum gear range", false, 5U);
+    parser.addOption("-gl", "--max_gear", "The maximum gear range", false, 50U);
+    parser.addOption("-gn", "--num_gear", "The minimum gear range", false, 8U);
     // The log level.
     parser.addMultiOption(
         "-lg", "--log_level", "The log level",
