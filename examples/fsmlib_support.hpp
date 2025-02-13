@@ -1,6 +1,23 @@
 /// @file fsmlib_support.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Provides utility functions for serializing and deserializing FSMlib data structures.
+///
+/// @details
+/// This file defines:
+/// - String conversion utilities for `fsmlib::Vector` and `fsmlib::Matrix`.
+/// - JSON serialization (`operator<<`) and deserialization (`operator>>`)
+///   for `fsmlib::Vector`, `fsmlib::Matrix`, `fsmlib::control::StateSpace`,
+///   and `fsmlib::control::DiscreteStateSpace`.
+///
+/// These utilities facilitate the integration of FSMlib data structures with
+/// JSON-based data exchange, allowing easy storage and retrieval of system
+/// models.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
@@ -118,7 +135,8 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const fsmlib::control::Stat
 }
 
 template <typename T, std::size_t Rows, std::size_t Inputs, std::size_t Outputs>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, fsmlib::control::StateSpace<T, Rows, Inputs, Outputs> &rhs)
+inline const json::jnode_t &
+operator>>(const json::jnode_t &lhs, fsmlib::control::StateSpace<T, Rows, Inputs, Outputs> &rhs)
 {
     if (lhs.get_type() == json::JTYPE_OBJECT) {
         lhs["A"] >> rhs.A;
@@ -130,7 +148,8 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, fsmlib::control
 }
 
 template <typename T, std::size_t Rows, std::size_t Inputs, std::size_t Outputs>
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const fsmlib::control::DiscreteStateSpace<T, Rows, Inputs, Outputs> &rhs)
+inline json::jnode_t &
+operator<<(json::jnode_t &lhs, const fsmlib::control::DiscreteStateSpace<T, Rows, Inputs, Outputs> &rhs)
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["A"] << rhs.A;
@@ -142,7 +161,8 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const fsmlib::control::Disc
 }
 
 template <typename T, std::size_t Rows, std::size_t Inputs, std::size_t Outputs>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, fsmlib::control::DiscreteStateSpace<T, Rows, Inputs, Outputs> &rhs)
+inline const json::jnode_t &
+operator>>(const json::jnode_t &lhs, fsmlib::control::DiscreteStateSpace<T, Rows, Inputs, Outputs> &rhs)
 {
     if (lhs.get_type() == json::JTYPE_OBJECT) {
         lhs["A"] >> rhs.A;

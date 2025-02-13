@@ -1,20 +1,50 @@
 /// @file search.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief Main search functions.
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Implements the main search functions for solution optimization.
+///
+/// @details
+/// This file provides core search functions for iteratively improving solutions
+/// using different search algorithms. It includes:
+/// - The `perform_search_single_iteration` function, which extends and refines
+///   solutions within a single search step.
+/// - The `perform_search_n_iterations` function, which executes multiple search
+///   iterations to generate an optimized Pareto front.
+/// - The `perform_search` function, which manages the full search process,
+///   iteratively refining solutions with configurable step sizes.
+///
+/// The search functions leverage a variety of algorithms and heuristics to
+/// explore and optimize the solution space efficiently. The process involves
+/// removing dominated solutions, splitting complete and partial solutions,
+/// and dynamically adjusting iteration parameters based on runtime constraints.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
-#include "flexman/data_structure/mode.hpp"
-#include "flexman/data_structure/result.hpp"
-#include "flexman/data_structure/solution.hpp"
-#include "flexman/search/common.hpp"
+#include "flexman/core/mode.hpp"
+#include "flexman/core/result.hpp"
+#include "flexman/core/solution.hpp"
 #include "flexman/logging.hpp"
+#include "flexman/search/common.hpp"
 
-#include <timelib/timer.hpp>
 #include <algorithm>
 #include <cmath>
+#include <timelib/timer.hpp>
 
-namespace flexman::search
+namespace flexman
+{
+
+/// @brief Provides search algorithms and supporting structures.
+///
+/// @details This namespace contains implementations of search algorithms used
+/// to explore the solution space efficiently. It includes heuristics, exhaustive
+/// search methods, and single-machine strategies for generating and refining
+/// Pareto-optimal solutions within the Flexman framework.
+namespace search
 {
 
 /// @brief Performs a single iteration of the search process.
@@ -32,11 +62,11 @@ namespace flexman::search
 /// @param global_timer The global timer to track the search process duration.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, typename Resources>
 void perform_search_single_iteration(
-    const flexman::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const std::vector<Mode> &modes,
     const unsigned steps_per_iteration,
-    std::vector<Solution<State, Resources>> &partial_solutions,
-    std::vector<Solution<State, Resources>> &accepted_solutions,
+    std::vector<flexman::core::Solution<State, Resources>> &partial_solutions,
+    std::vector<flexman::core::Solution<State, Resources>> &accepted_solutions,
     const timelib::Timer &global_timer)
 {
     // Check if manager is a valid pointer.
@@ -54,13 +84,17 @@ void perform_search_single_iteration(
         throw std::invalid_argument("modes vector is empty");
     }
 
-    std::vector<Solution<State, Resources>> complete, partial, extended;
+    std::vector<flexman::core::Solution<State, Resources>> complete;
+    std::vector<flexman::core::Solution<State, Resources>> partial;
+    std::vector<flexman::core::Solution<State, Resources>> extended;
 
     // First, we need t extend the partial solutions we have.
     if (Algorithm == SearchAlgorithm::SingleMachine) {
-        extended = extend_solutions<SwitchingMode::None>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
+        extended =
+            extend_solutions<SwitchingMode::None>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
     } else {
-        extended = extend_solutions<SwitchingMode::Free>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
+        extended =
+            extend_solutions<SwitchingMode::Free>(manager, modes, steps_per_iteration, partial_solutions, global_timer);
     }
     flexman::search::log_solutions(logging::solution, quire::debug, extended);
 
@@ -108,10 +142,10 @@ void perform_search_single_iteration(
 /// @return The updated Pareto front after performing the iterations.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, typename Resources>
 auto perform_search_n_iterations(
-    const flexman::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const std::vector<Mode> &modes,
     const unsigned steps_per_iteration,
-    const ParetoFront<State, Resources> &previous_pareto_front,
+    const flexman::core::ParetoFront<State, Resources> &previous_pareto_front,
     const timelib::Timer &global_timer)
 {
     // Check if manager is a valid pointer.
@@ -135,13 +169,13 @@ auto perform_search_n_iterations(
     }
 
     // Prepare the initial partial solutions.
-    std::vector<Solution<State, Resources>> partial_solutions;
+    std::vector<flexman::core::Solution<State, Resources>> partial_solutions;
     // Iterate over the modes.
     for (const auto &mode : modes) {
         partial_solutions.push_back(
             // Initial solution.
-            Solution<State, Resources>{
-                .sequence  = { { mode.id, 0 } },                 // Empty sequence initially.
+            flexman::core::Solution<State, Resources>{
+                .sequence  = {{mode.id, 0}},                     // Empty sequence initially.
                 .state     = manager->initial_state,             // Start from the initial state.
                 .resources = Resources(),                        // Initialize resources.
                 .distance  = std::numeric_limits<double>::max(), // Initialize the distance to maximum.
@@ -149,10 +183,11 @@ auto perform_search_n_iterations(
     }
 
     // Prepare the accepted solutions from the previous Pareto front.
-    std::vector<Solution<State, Resources>> accepted_solutions = previous_pareto_front.solutions;
+    std::vector<flexman::core::Solution<State, Resources>> accepted_solutions = previous_pareto_front.solutions;
 
     // A stopwatch to check runtime.
-    timelib::Timer pareto_timer, round_timer;
+    timelib::Timer pareto_timer;
+    timelib::Timer round_timer;
 
     // Start the pareto timer.
     pareto_timer.start();
@@ -161,10 +196,11 @@ auto perform_search_n_iterations(
     const double time_per_iteration = manager->time_delta * static_cast<double>(steps_per_iteration);
 
     // Determine the maximum number of steps allowed.
-    const unsigned max_iterations = static_cast<unsigned>(manager->time_max / time_per_iteration);
+    const auto max_iterations = static_cast<unsigned>(manager->time_max / time_per_iteration);
 
-    qinfo(logging::round, "\nPerform %6u iterations maximum, with %5u steps per iteration, each simulating %7.2f.\n",
-          max_iterations, steps_per_iteration, time_per_iteration);
+    qinfo(
+        logging::round, "\nPerform %6u iterations maximum, with %5u steps per iteration, each simulating %7.2f.\n",
+        max_iterations, steps_per_iteration, time_per_iteration);
 
     // Perform the search for the specified number of steps or until no partial solutions remain.
     unsigned iteration = 0;
@@ -174,12 +210,7 @@ auto perform_search_n_iterations(
 
         // Perform a single iteration of the search process.
         flexman::search::perform_search_single_iteration<Algorithm>(
-            manager,
-            modes,
-            steps_per_iteration,
-            partial_solutions,
-            accepted_solutions,
-            global_timer);
+            manager, modes, steps_per_iteration, partial_solutions, accepted_solutions, global_timer);
 
         ++iteration;
 
@@ -199,18 +230,16 @@ auto perform_search_n_iterations(
         flexman::search::log_solutions(logging::solution, quire::debug, partial_solutions);
 
         if (global_timer.has_timeout()) {
-            qwarning(logging::round, "Iteration index %2u of %3u (Steps: %d, Length: %.2f), went into timeout (%.2f > %.2f).\n",
-                     iteration,
-                     max_iterations,
-                     steps_per_iteration,
-                     time_per_iteration,
-                     global_timer.elapsed().count(),
-                     manager->timeout.count());
+            qwarning(
+                logging::round,
+                "Iteration index %2u of %3u (Steps: %d, Length: %.2f), went into timeout (%.2f > %.2f).\n", iteration,
+                max_iterations, steps_per_iteration, time_per_iteration, global_timer.elapsed().count(),
+                manager->timeout.count());
             break;
         }
     }
 
-    auto new_pareto_front = ParetoFront<State, Resources>{
+    auto new_pareto_front = flexman::core::ParetoFront<State, Resources>{
         .solutions           = accepted_solutions,            // The final set of accepted solutions.
         .step_length         = time_per_iteration,            // The length of each iteration.
         .steps_per_iteration = steps_per_iteration,           // The number of steps per iteration.
@@ -235,7 +264,7 @@ auto perform_search_n_iterations(
 /// @return The result of the search containing the Pareto fronts.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, typename Resources>
 auto perform_search(
-    const flexman::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const typename std::vector<Mode> &modes,
     unsigned iterations = 5)
 {
@@ -250,10 +279,10 @@ auto perform_search(
     }
 
     // Prepare the result.
-    Result<State, Resources> result;
+    flexman::core::Result<State, Resources> result;
 
     // We store the pareto front here.
-    ParetoFront<State, Resources> pareto_front;
+    flexman::core::ParetoFront<State, Resources> pareto_front;
 
     // A stopwatch, to check runtime.
     timelib::Timer global_timer;
@@ -267,7 +296,7 @@ auto perform_search(
     global_timer.start();
 
     // Calculate the maximum starting stride factor based on the number of iterations.
-    unsigned init_stride;
+    unsigned init_stride = 0;
     if constexpr (Algorithm == SearchAlgorithm::SingleMachine) {
         init_stride = 1U;
     }
@@ -283,7 +312,7 @@ auto perform_search(
         // Calculate the time covered in each iteration.
         const double time_per_iteration = manager->time_delta * static_cast<double>(steps_per_iteration);
         // Determine the maximum number of steps allowed.
-        const unsigned max_iterations = static_cast<unsigned>(manager->time_max / time_per_iteration);
+        const auto max_iterations       = static_cast<unsigned>(manager->time_max / time_per_iteration);
         qinfo(logging::search, "| %14u | %19u | %10.6f |\n", max_iterations, steps_per_iteration, time_per_iteration);
     }
     qinfo(logging::search, "\n");
@@ -294,11 +323,7 @@ auto perform_search(
     for (unsigned steps_per_iteration = init_stride; steps_per_iteration >= 1; steps_per_iteration /= 2) {
         // Perform a single-pass search.
         pareto_front = flexman::search::perform_search_n_iterations<Algorithm>(
-            manager,
-            modes,
-            steps_per_iteration,
-            pareto_front,
-            global_timer);
+            manager, modes, steps_per_iteration, pareto_front, global_timer);
 
         // Add the pareto front only if it has solutions.
         if (!pareto_front.solutions.empty()) {
@@ -311,7 +336,9 @@ auto perform_search(
             // Pause the timer.
             global_timer.pause();
 
-            qwarning(logging::search, "Press 'c' to continue the search, 'r' resume and disable interactive, 'q' to stop it now.\n");
+            qwarning(
+                logging::search,
+                "Press 'c' to continue the search, 'r' resume and disable interactive, 'q' to stop it now.\n");
 
             do {
                 char c = flexman::search::wait_for_keypress();
@@ -340,4 +367,5 @@ auto perform_search(
     return result;
 }
 
-} // namespace flexman::search
+} // namespace search
+} // namespace flexman

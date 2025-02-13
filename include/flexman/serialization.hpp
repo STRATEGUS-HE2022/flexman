@@ -1,6 +1,26 @@
 /// @file serialization.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief Contains all the serialization procedures.
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Implements serialization and deserialization procedures for Flexman objects.
+///
+/// @details
+/// This file provides serialization and deserialization operators for key
+/// data structures within the Flexman library. The supported types include:
+/// - `Mode`
+/// - `ModeExecution`
+/// - `Solution`
+/// - `ParetoFront`
+/// - `Result`
+/// - `Manager`
+///
+/// These operators facilitate seamless conversion between JSON representations
+/// and Flexman objects, enabling efficient data storage, logging, and
+/// exchange of optimization results.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
@@ -21,7 +41,7 @@ namespace json
 ///
 /// @return A reference to the updated JSON node.
 template <typename System, typename Input>
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Mode<System, Input> &rhs)
+inline auto operator<<(json::jnode_t &lhs, const flexman::core::Mode<System, Input> &rhs) -> json::jnode_t &
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["id"] << rhs.id;
@@ -40,7 +60,7 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Mode<System,
 ///
 /// @return A reference to the original JSON node.
 template <typename System, typename Input>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Mode<System, Input> &rhs)
+inline auto operator>>(const json::jnode_t &lhs, flexman::core::Mode<System, Input> &rhs) -> const json::jnode_t &
 {
     lhs["id"] >> rhs.id;
     lhs["system"] >> rhs.system;
@@ -58,7 +78,7 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Mode<S
 ///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::ParetoFront<State, Resources> &rhs)
+inline auto operator<<(json::jnode_t &lhs, const flexman::core::ParetoFront<State, Resources> &rhs) -> json::jnode_t &
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["solutions"] << rhs.solutions;
@@ -79,7 +99,8 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::ParetoFront<
 ///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::ParetoFront<State, Resources> &rhs)
+inline auto operator>>(const json::jnode_t &lhs, flexman::core::ParetoFront<State, Resources> &rhs)
+    -> const json::jnode_t &
 {
     lhs["solutions"] >> rhs.solutions;
     lhs["step_length"] >> rhs.step_length;
@@ -98,7 +119,7 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Pareto
 ///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Result<State, Resources> &rhs)
+inline auto operator<<(json::jnode_t &lhs, const flexman::core::Result<State, Resources> &rhs) -> json::jnode_t &
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["pareto_fronts"] << rhs.pareto_fronts;
@@ -115,7 +136,7 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Result<State
 ///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Result<State, Resources> &rhs)
+inline auto operator>>(const json::jnode_t &lhs, flexman::core::Result<State, Resources> &rhs) -> const json::jnode_t &
 {
     lhs["pareto_fronts"] >> rhs.pareto_fronts;
     return lhs;
@@ -127,7 +148,7 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Result
 /// @param rhs The ModeExecution object to serialize.
 ///
 /// @return A reference to the updated JSON node.
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::ModeExecution &rhs)
+inline auto operator<<(json::jnode_t &lhs, const flexman::core::ModeExecution &rhs) -> json::jnode_t &
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["mode"] << rhs.mode;
@@ -139,9 +160,9 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::ModeExecutio
 ///
 /// @param lhs The JSON node to read from.
 /// @param rhs The ModeExecution object to populate.
-/// 
+///
 /// @return A reference to the original JSON node.
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::ModeExecution &rhs)
+inline auto operator>>(const json::jnode_t &lhs, flexman::core::ModeExecution &rhs) -> const json::jnode_t &
 {
     std::vector<std::string> sequence;
     lhs["mode"] >> rhs.mode;
@@ -153,13 +174,13 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::ModeEx
 ///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Solution object to serialize.
-/// 
+///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Solution<State, Resources> &rhs)
+inline auto operator<<(json::jnode_t &lhs, const flexman::core::Solution<State, Resources> &rhs) -> json::jnode_t &
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["sequence"] << rhs.sequence;
@@ -172,13 +193,14 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Solution<Sta
 ///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Solution object to populate.
-/// 
+///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Solution<State, Resources> &rhs)
+inline auto operator>>(const json::jnode_t &lhs, flexman::core::Solution<State, Resources> &rhs)
+    -> const json::jnode_t &
 {
     std::vector<std::string> sequence;
     lhs["sequence"] >> rhs.sequence;
@@ -192,13 +214,13 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Soluti
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Manager object to serialize.
-/// 
+///
 /// @return A reference to the updated JSON node.
-template <typename System, typename State, typename Input, typename Mode, class Resources>
-inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Manager<State, Mode, Resources> &rhs)
+template <typename State, typename Mode, class Resources>
+inline auto operator<<(json::jnode_t &lhs, const flexman::core::Manager<State, Mode, Resources> &rhs) -> json::jnode_t &
 {
     lhs.set_type(json::JTYPE_OBJECT);
     lhs["initial_state"] << rhs.initial_state;
@@ -216,13 +238,14 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const flexman::Manager<Stat
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Manager object to populate.
-/// 
+///
 /// @return A reference to the original JSON node.
-template <typename System, typename State, typename Input, typename Mode, class Resources>
-inline const json::jnode_t &operator>>(const json::jnode_t &lhs, flexman::Manager<State, Mode, Resources> &rhs)
+template <typename State, typename Mode, class Resources>
+inline auto operator>>(const json::jnode_t &lhs, flexman::core::Manager<State, Mode, Resources> &rhs)
+    -> const json::jnode_t &
 {
     lhs["initial_state"] >> rhs.initial_state;
     lhs["target_state"] >> rhs.target_state;

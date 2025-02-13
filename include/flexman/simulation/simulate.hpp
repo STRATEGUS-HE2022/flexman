@@ -1,13 +1,41 @@
 /// @file simulate.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Provides simulation functions for evaluating mode sequences
+/// and state evolution.
+///
+/// @details
+/// This file defines functions for simulating system behavior based on mode
+/// execution sequences. It includes:
+/// - `generate_solution`: Simulates a sequence of mode executions to generate
+///   a resulting solution.
+/// - `simulate_one_step`: Performs a single-step simulation update.
+/// - `simulate_single_mode`: Simulates a mode for a specified number of steps,
+///   tracking state evolution over time.
+///
+/// These functions allow for controlled execution of mode transitions, enabling
+/// efficient solution evaluation in simulation-based optimization processes.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
-#include "flexman/simulation/common.hpp"
 #include "flexman/search/common.hpp"
+#include "flexman/simulation/common.hpp"
 
-namespace flexman::simulation
+namespace flexman
+{
+
+/// @brief Provides simulation support functions and structures.
+///
+/// @details This namespace includes tools for simulating the execution of
+/// mode sequences within the system. It enables the evaluation of solutions
+/// by applying defined modes iteratively and tracking the evolution of system
+/// states and resources over time.
+namespace simulation
 {
 
 /// @brief Generates a solution by simulating a sequence of mode executions.
@@ -22,13 +50,13 @@ namespace flexman::simulation
 ///
 /// @return The generated solution after simulating the mode sequence.
 template <typename State, typename Mode, typename Resources>
-Solution<State, Resources> generate_solution(
-    const flexman::Manager<State, Mode, Resources> *manager,
+auto generate_solution(
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const std::vector<Mode> &modes,
-    const std::vector<flexman::ModeExecution> &sequence)
+    const std::vector<flexman::core::ModeExecution> &sequence) -> flexman::core::Solution<State, Resources>
 {
     // Initialize the solution with an empty state and resources.
-    Solution<State, Resources> solution{
+    flexman::core::Solution<State, Resources> solution{
         .sequence  = {},
         .state     = manager->initial_state,
         .resources = Resources(),
@@ -43,7 +71,7 @@ Solution<State, Resources> generate_solution(
             // Update the solution.
             manager->updated_solution(solution, modes[mode_execution.mode]);
             // Add the mode to the sequence.
-            flexman::add_mode_execution_to_sequence(mode_execution.mode, solution.sequence);
+            flexman::core::detail::add_mode_execution_to_sequence(mode_execution.mode, solution.sequence);
             // If the solution is complete, interpolate to avoid overshoot.
             if (manager->is_complete(solution)) {
                 solution = flexman::search::find_solution_closest_to_zero(manager, old_solution, solution);
@@ -65,9 +93,9 @@ Solution<State, Resources> generate_solution(
 /// @param solution The current solution to update.
 template <typename State, typename Mode, typename Resources>
 inline void simulate_one_step(
-    const flexman::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const Mode &mode,
-    Solution<State, Resources> &solution)
+    flexman::core::Solution<State, Resources> &solution)
 {
     // Check for null pointer in manager.
     if (manager == nullptr) {
@@ -83,17 +111,17 @@ inline void simulate_one_step(
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-/// 
+///
 /// @param manager Pointer to the manager handling the simulation.
 /// @param mode The mode being simulated.
 /// @param steps The number of steps to simulate.
-/// 
-/// @return A vector containing the solution at each step.
+///
+/// @return A structure defining default simulation specifications.
 template <typename State, typename Mode, typename Resources>
 inline auto simulate_single_mode(
-    const flexman::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const Mode &mode,
-    const unsigned steps)
+    const unsigned steps) -> Simulation<State, Resources>
 {
     // Check for null pointer in manager.
     if (manager == nullptr) {
@@ -113,7 +141,7 @@ inline auto simulate_single_mode(
     };
 
     // Initialize the initial solution with the initial state and empty sequence.
-    Solution<State, Resources> solution{
+    flexman::core::Solution<State, Resources> solution{
         .sequence  = {},                                 // Empty sequence initially.
         .state     = manager->initial_state,             // Start from the initial state.
         .resources = Resources(),                        // Initialize resources.
@@ -133,4 +161,5 @@ inline auto simulate_single_mode(
     return simulation;
 }
 
-} // namespace flexman::simulation
+} // namespace simulation
+} // namespace flexman

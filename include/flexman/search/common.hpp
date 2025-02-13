@@ -1,40 +1,65 @@
 /// @file common.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief Common search functions.
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Implements common search functions and utilities for optimization.
+///
+/// @details
+/// This file defines core search utilities and helper functions for handling
+/// optimization processes. It includes:
+/// - The `SearchAlgorithm` and `SwitchingMode` enumerations for configuring
+///   search strategies and mode transitions.
+/// - Functions for logging solutions and managing solution sequences.
+/// - Methods for evaluating, filtering, and removing dominated or duplicate solutions.
+/// - A function for interpolating and finding the best intermediate solution
+///   closest to zero distance.
+/// - Utility functions for handling user input, including a cross-platform
+///   keypress wait function.
+///
+/// These utilities form the foundation for search algorithms used in the
+/// optimization process, ensuring efficient solution exploration and refinement.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
 #include <algorithm>
 #include <functional>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 #ifdef _WIN32
 #include <conio.h>
 #else
+#include <cmath>
 #include <termios.h>
 #include <unistd.h>
 #endif
 
 #include <timelib/timer.hpp>
 
-#include "flexman/data_structure/solution.hpp"
-#include "flexman/data_structure/manager.hpp"
-#include "flexman/data_structure/mode.hpp"
+#include "flexman/core/manager.hpp"
+#include "flexman/core/mode.hpp"
+#include "flexman/core/solution.hpp"
 #include "flexman/logging.hpp"
 
-namespace flexman::search
+namespace flexman
+{
+
+namespace search
 {
 
 /// @brief Defines the available search algorithms for the optimization process.
-enum class SearchAlgorithm {
+enum class SearchAlgorithm : unsigned char {
     Exhaustive,   ///< Explores all possible solutions.
     Heuristic,    ///< Uses heuristic methods to guide the search.
     SingleMachine ///< Focuses on a single machine's solution space.
 };
 
 /// @brief Represents the switching modes for the optimization process.
-enum class SwitchingMode {
+enum class SwitchingMode : unsigned char {
     None,       ///< No switching between modes.
     Increasing, ///< Switches between modes in an increasing sequence.
     Free        ///< Allows free switching between modes.
@@ -49,12 +74,15 @@ enum class SwitchingMode {
 /// @param level The log level to determine whether logging should occur.
 /// @param solutions The vector of solutions to log.
 template <typename State, typename Resources>
-static inline void log_solutions(quire::registry_t::value_t &logger, const quire::log_level level, const std::vector<Solution<State, Resources>> &solutions)
+static inline void log_solutions(
+    quire::registry_t::value_t &logger,
+    const quire::log_level level,
+    const std::vector<flexman::core::Solution<State, Resources>> &solutions)
 {
     // Check if the logger's level is set to debug or lower.
     if (logger.get_log_level() <= quire::log_level::debug) {
         for (const auto &solution : solutions) {
-            qlog(logger, level, "\t%s\n", flexman::to_string(solution).c_str());
+            qlog(logger, level, "\t%s\n", solution.to_string().c_str());
         }
     }
 }
@@ -69,7 +97,8 @@ template <typename T>
 static inline void move_elements(std::vector<T> &source, std::vector<T> &destination)
 {
     // Move the elements to the destination vector.
-    destination.insert(destination.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
+    destination.insert(
+        destination.end(), std::make_move_iterator(source.begin()), std::make_move_iterator(source.end()));
     // Optionally clear the source if required.
     source.clear();
 }
@@ -86,10 +115,10 @@ static inline void move_elements(std::vector<T> &source, std::vector<T> &destina
 ///
 /// @return The solution closest to zero distance.
 template <typename State, typename Mode, class Resources>
-Solution<State, Resources> find_solution_closest_to_zero(
-    const flexman::Manager<State, Mode, Resources> *manager,
-    const Solution<State, Resources> &previous,
-    const Solution<State, Resources> &current)
+auto find_solution_closest_to_zero(
+    const flexman::core::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Solution<State, Resources> &previous,
+    const flexman::core::Solution<State, Resources> &current) -> flexman::core::Solution<State, Resources>
 {
     // Get the initial distance to target from the previous solution.
     double distance = std::abs(previous.distance);
@@ -99,10 +128,10 @@ Solution<State, Resources> find_solution_closest_to_zero(
     double step_size   = manager->time_delta / (10 * step_factor);
 
     // Variable to store the best complete solution found.
-    Solution<State, Resources> solution = previous;
+    flexman::core::Solution<State, Resources> solution = previous;
 
     // Start iterating from low_time to high_time in small steps.
-    for (double t = 0, relative; t <= manager->time_delta; t += step_size) {
+    for (double t = 0, relative = NAN; t <= manager->time_delta; t += step_size) {
         // Calculate the relative interpolation factor based on time.
         relative = t / manager->time_delta;
 
@@ -136,10 +165,10 @@ Solution<State, Resources> find_solution_closest_to_zero(
 /// @return The new solution obtained after the simulation.
 template <typename State, typename Mode, class Resources>
 inline auto simulate_mode(
-    const flexman::Manager<State, Mode, Resources> *search,
+    const flexman::core::Manager<State, Mode, Resources> *search,
     const Mode &mode,
     const unsigned steps,
-    Solution<State, Resources> solution)
+    flexman::core::Solution<State, Resources> solution)
 {
     // Check if search is a valid pointer.
     if (!search) {
@@ -150,7 +179,7 @@ inline auto simulate_mode(
         throw std::invalid_argument("steps must be greater than 0");
     }
 
-    Solution<State, Resources> previous;
+    flexman::core::Solution<State, Resources> previous;
 
     // Perform the simulation for the given number of steps, or until the
     // solution is complete.
@@ -160,7 +189,7 @@ inline auto simulate_mode(
         // Update the solution.
         search->updated_solution(solution, mode);
         // Add new mode to the sequence.
-        flexman::add_mode_execution_to_sequence(mode.id, solution.sequence);
+        flexman::core::detail::add_mode_execution_to_sequence(mode.id, solution.sequence);
         // If the solution is complete, interpolate to avoid overshoot.
         if (search->is_complete(solution)) {
             return find_solution_closest_to_zero(search, previous, solution);
@@ -186,10 +215,10 @@ inline auto simulate_mode(
 /// @return A new set of extended solutions.
 template <SwitchingMode SwitchMode, typename State, typename Mode, class Resources>
 auto extend_solutions(
-    const flexman::Manager<State, Mode, Resources> *manager,
+    const flexman::core::Manager<State, Mode, Resources> *manager,
     const typename std::vector<Mode> &modes,
     const unsigned steps_per_iteration,
-    const std::vector<Solution<State, Resources>> &partials,
+    const std::vector<flexman::core::Solution<State, Resources>> &partials,
     const timelib::Timer &global_timer)
 {
     // Check if manager is a valid pointer.
@@ -208,7 +237,7 @@ auto extend_solutions(
     }
 
     // Prepare a vector for the new solutions.
-    std::vector<Solution<State, Resources>> solutions;
+    std::vector<flexman::core::Solution<State, Resources>> solutions;
 
     qdebug(logging::common, "[%8u] Before extending set of solutions.\n", partials.size());
 
@@ -225,7 +254,7 @@ auto extend_solutions(
         // We switch to only subsequent machines.
         else if constexpr (SwitchMode == SwitchingMode::Increasing) {
             // Iterate over the modes.
-            for (mode_id_t mode = partial.sequence.back(); mode < modes.size(); ++mode) {
+            for (flexman::core::ModeId mode = partial.sequence.back(); mode < modes.size(); ++mode) {
                 // Simulate the given mode and store the new solution.
                 solutions.push_back(simulate_mode(manager, modes[mode], steps_per_iteration, partial));
             }
@@ -233,7 +262,8 @@ auto extend_solutions(
         // Simple case without any switching.
         else {
             // Simulate the given mode and store the new solution.
-            solutions.push_back(simulate_mode(manager, modes[partial.sequence.back().mode], steps_per_iteration, partial));
+            solutions.push_back(
+                simulate_mode(manager, modes[partial.sequence.back().mode], steps_per_iteration, partial));
         }
         // Check if the timer has expired.
         if (global_timer.has_timeout()) {
@@ -260,9 +290,9 @@ auto extend_solutions(
 /// @param solutions_to_check_against The set of solutions to check for dominance.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, class Resources>
 void remove_dominated_solutions(
-    const flexman::Manager<State, Mode, Resources> *manager,
-    std::vector<Solution<State, Resources>> &solutions,
-    const std::vector<Solution<State, Resources>> &solutions_to_check_against)
+    const flexman::core::Manager<State, Mode, Resources> *manager,
+    std::vector<flexman::core::Solution<State, Resources>> &solutions,
+    const std::vector<flexman::core::Solution<State, Resources>> &solutions_to_check_against)
 {
     // Check if manager is a valid pointer.
     if (!manager) {
@@ -284,12 +314,10 @@ void remove_dominated_solutions(
     // Erase the solutions that are dominated.
     solutions.erase(
         std::remove_if(
-            solutions.begin(),
-            solutions.end(),
-            [&](const Solution<State, Resources> &solution) {
+            solutions.begin(), solutions.end(),
+            [&](const flexman::core::Solution<State, Resources> &solution) {
                 return std::any_of(
-                    solutions_to_check_against.begin(),
-                    solutions_to_check_against.end(),
+                    solutions_to_check_against.begin(), solutions_to_check_against.end(),
                     [&](const auto &other_solution) {
                         if constexpr (Algorithm == SearchAlgorithm::Heuristic) {
                             return manager->is_probably_better_than(other_solution, solution);
@@ -311,11 +339,12 @@ void remove_dominated_solutions(
 /// @tparam Resources The type representing the resources.
 ///
 /// @param manager Pointer to the search manager handling the process.
-/// @param solutions The vector of solutions to filter, also used as the reference for dominance checks.
+/// @param solutions The vector of solutions to filter, also used as the
+/// reference for dominance checks.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, typename Resources>
 void remove_dominated_solutions(
-    const flexman::Manager<State, Mode, Resources> *manager,
-    std::vector<Solution<State, Resources>> &solutions)
+    const flexman::core::Manager<State, Mode, Resources> *manager,
+    std::vector<flexman::core::Solution<State, Resources>> &solutions)
 {
     // Check if manager is a valid pointer.
     if (!manager) {
@@ -362,7 +391,7 @@ void remove_dominated_solutions(
     }
 
     // Rebuild the solutions vector with only the kept solutions.
-    std::vector<Solution<State, Resources>> filtered_solutions;
+    std::vector<flexman::core::Solution<State, Resources>> filtered_solutions;
     filtered_solutions.reserve(solutions_to_keep_idx.size());
 
     for (std::size_t idx : solutions_to_keep_idx) {
@@ -380,7 +409,7 @@ void remove_dominated_solutions(
 ///
 /// @param solutions The vector of solutions to filter for duplicates.
 template <typename State, class Resources>
-void remove_duplicate_solutions(std::vector<Solution<State, Resources>> &solutions)
+void remove_duplicate_solutions(std::vector<flexman::core::Solution<State, Resources>> &solutions)
 {
     qdebug(logging::common, "[%8u] Before removing duplicate solutions.\n", solutions.size());
 
@@ -392,7 +421,8 @@ void remove_duplicate_solutions(std::vector<Solution<State, Resources>> &solutio
     qdebug(logging::common, "[%8u] After removing duplicate solutions.\n", solutions.size());
 }
 
-/// @brief Splits the given set of solutions into complete and partial solutions.
+/// @brief Splits the given set of solutions into complete and partial
+/// solutions.
 ///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
@@ -404,10 +434,10 @@ void remove_duplicate_solutions(std::vector<Solution<State, Resources>> &solutio
 /// @param partial The vector to store partial solutions.
 template <typename State, typename Mode, class Resources>
 void split_complete_partial(
-    const flexman::Manager<State, Mode, Resources> *manager,
-    std::vector<Solution<State, Resources>> &solutions,
-    std::vector<Solution<State, Resources>> &complete,
-    std::vector<Solution<State, Resources>> &partial)
+    const flexman::core::Manager<State, Mode, Resources> *manager,
+    std::vector<flexman::core::Solution<State, Resources>> &solutions,
+    std::vector<flexman::core::Solution<State, Resources>> &complete,
+    std::vector<flexman::core::Solution<State, Resources>> &partial)
 {
     // Check if manager is a valid pointer.
     if (!manager) {
@@ -419,11 +449,9 @@ void split_complete_partial(
         qdebug(logging::common, "[%8u] Before splitting among complete and partial solutions.\n", solutions.size());
 
         // Partition the solutions into complete and partial in-place.
-        auto it = std::partition(
-            solutions.begin(), solutions.end(),
-            [&manager](const auto &solution) -> bool {
-                return manager->is_complete(solution);
-            });
+        auto it = std::partition(solutions.begin(), solutions.end(), [&manager](const auto &solution) -> bool {
+            return manager->is_complete(solution);
+        });
 
         // Move the complete solutions to the complete vector.
         std::move(solutions.begin(), it, std::back_inserter(complete));
@@ -435,22 +463,24 @@ void split_complete_partial(
         solutions.clear();
 
         // We split between complete solutions and partial ones.
-        qdebug(logging::common, "[%8u] After among complete and partial solutions [complete: %8u, partial: %8u]\n",
-               solutions.size(), complete.size(), partial.size());
+        qdebug(
+            logging::common, "[%8u] After among complete and partial solutions [complete: %8u, partial: %8u]\n",
+            solutions.size(), complete.size(), partial.size());
     }
 }
 
 /// @brief Waits for a key press and returns the pressed character.
 /// @return The character of the key pressed.
-char wait_for_keypress()
+auto wait_for_keypress() -> char
 {
 #ifdef _WIN32
     // Windows implementation using _getch()
     return _getch(); // Return the character directly
 #else
     // Linux/Unix implementation using termios
-    struct termios oldt, newt;
-    char ch;
+    struct termios oldt{};
+    struct termios newt{};
+    char ch = 0;
 
     // Get current terminal settings
     tcgetattr(STDIN_FILENO, &oldt);
@@ -470,4 +500,5 @@ char wait_for_keypress()
 #endif
 }
 
-} // namespace flexman::search
+} // namespace search
+} // namespace flexman
