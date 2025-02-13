@@ -248,4 +248,4 @@ Special thanks to **Michael Balszun** for contributions and inspiration.
 
 ## License
 
-This project is licensed under the [BSD-2 License](LICENSE.md).
+This project is licensed under the [BSD-3 License](LICENSE.md).
