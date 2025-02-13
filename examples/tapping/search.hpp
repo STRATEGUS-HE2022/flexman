@@ -1,6 +1,25 @@
 /// @file model.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Defines discrete and continuous search managers for Flexman.
+///
+/// @details
+/// This file provides the implementations of:
+/// - `discrete_search_t`: A search manager for discrete-time models.
+/// - `continuous_search_t`: A search manager for continuous-time models.
+///
+/// Each manager:
+/// - Implements methods for updating solutions, computing distances, and checking completion.
+/// - Defines comparison operations for determining better solutions.
+/// - Provides interpolation methods for states and resources.
+///
+/// Additionally, JSON serialization and deserialization functions are provided
+/// for both search managers, enabling storage and retrieval of search configurations.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
@@ -13,7 +32,7 @@
 namespace tapping
 {
 
-class discrete_search_t : public flexman::Manager<state_t, discrete_mode_t, resources_t>
+class discrete_search_t : public flexman::core::Manager<state_t, discrete_mode_t, resources_t>
 {
 public:
     discrete_search_t() = default;
@@ -79,7 +98,7 @@ public:
     }
 };
 
-class continuous_search_t : public flexman::Manager<state_t, continous_mode_t, resources_t>
+class continuous_search_t : public flexman::core::Manager<state_t, continous_mode_t, resources_t>
 {
 public:
     continuous_search_t() = default;

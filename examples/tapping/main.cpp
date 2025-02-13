@@ -1,6 +1,32 @@
 /// @file main.cpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Entry point for the tapping system search and simulation.
+///
+/// @details
+/// This program executes search and simulation routines for a tapping system.
+/// It provides command-line options for selecting discrete or continuous mode,
+/// specifying search algorithms, enabling post-search optimization (PSO),
+/// and configuring search parameters such as iterations, gear range, and
+/// maximum simulation time.
+///
+/// Supported functionalities:
+/// - **Search Mode**: Finds optimal tapping sequences using heuristic,
+///   exhaustive, or single-machine search.
+/// - **Simulation Mode**: Simulates the tapping process under specified modes.
+/// - **Pareto Front Analysis**: Computes and logs Pareto-optimal solutions.
+/// - **Post-Search Optimization**: Uses Particle Swarm Optimization (PSO) to
+///   refine the search results.
+/// - **Logging and Plotting**: Outputs results to JSON and visualizes them
+///   using Gnuplot.
+///
+/// Command-line arguments allow fine-tuned configuration of the search and
+/// simulation process.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #include "builder.hpp"
 #include "defines.hpp"
@@ -10,6 +36,7 @@
 
 #include <cmath>
 #include <cmdlp/parser.hpp>
+
 #include <flexman/pso/optimize.hpp>
 #include <flexman/serialization.hpp>
 #include <flexman/simulation/simulate.hpp>
@@ -17,17 +44,27 @@
 namespace tapping
 {
 
-enum run_option { run_search, run_simulation };
+enum run_option : unsigned char {
+    run_search,
+    run_simulation,
+};
 
-enum mode_option { mode_discrete, mode_continuous };
+enum mode_option : unsigned char {
+    mode_discrete,
+    mode_continuous,
+};
 
-enum algorithm_type { algorithm_heuristic, algorithm_exhaustive, algorithm_single_machine };
+enum algorithm_type : unsigned char {
+    algorithm_heuristic,
+    algorithm_exhaustive,
+    algorithm_single_machine,
+};
 
 /// @brief Compares two solutions for ascending order based on energy and time.
 /// @param lhs The first solution to compare.
 /// @param rhs The second solution to compare.
 /// @return true if lhs comes before rhs in ascending order, otherwise false.
-inline bool compare_ascending(const solution_t &lhs, const solution_t &rhs)
+inline auto compare_ascending(const solution_t &lhs, const solution_t &rhs) -> bool
 {
     // Primary sort: by energy (ascending).
     if (!fsmlib::feq::approximately_equal(lhs.resources.energy, rhs.resources.energy)) {
@@ -50,7 +87,7 @@ inline void log_results(quire::log_level log_level, const tapping::result_t &res
             pareto.runtime);
         // Log each solution in the Pareto front.
         for (const auto &solution : pareto.solutions) {
-            qlog(flexman::logging::app, log_level, "\t%s\n", flexman::to_string(solution).c_str());
+            qlog(flexman::logging::app, log_level, "\t%s\n", solution.to_string().c_str());
         }
     }
     qlog(flexman::logging::app, log_level, "============================================================\n");
@@ -64,13 +101,13 @@ inline void log_results(quire::log_level log_level, const tapping::result_t &res
 /// @return The generated vector.
 template <typename T>
 [[nodiscard]]
-inline auto linspace(T start, T stop, unsigned num = 100)
+inline auto linspace(T start, T stop, unsigned num = 100) -> std::vector<T>
 {
     std::vector<T> result(num, 1);
     if (num == 0) {
         return result;
     }
-    bool are_the_same;
+    bool are_the_same = false;
     if constexpr (std::is_floating_point<T>::value) {
         are_the_same = fsmlib::feq::approximately_equal(start, stop);
     } else {
@@ -103,24 +140,22 @@ inline auto linspace(T start, T stop, unsigned num = 100)
 /// @param value1 The initial value.
 /// @param value2 The new value.
 /// @return A string indicating "improved," "worsened," or "unchanged," with appropriate color coding.
-std::string compare_state(double value1, double value2)
+inline auto compare_state(double value1, double value2) -> std::string
 {
     if (value1 > value2) {
         return std::string(quire::ansi::fg::bright_green) + "improved " + quire::ansi::util::reset;
-    } else if (value1 < value2) {
-        return std::string(quire::ansi::fg::bright_red) + "worsened " + quire::ansi::util::reset;
-    } else {
-        return std::string(quire::ansi::util::reset) + "unchanged" + quire::ansi::util::reset;
     }
+    if (value1 < value2) {
+        return std::string(quire::ansi::fg::bright_red) + "worsened " + quire::ansi::util::reset;
+    }
+    return std::string(quire::ansi::util::reset) + "unchanged" + quire::ansi::util::reset;
 }
 
 template <typename State, typename Resources>
-void compare_results(const flexman::Result<State, Resources> &result1, const flexman::Result<State, Resources> &result2)
+void compare_results(
+    const flexman::core::Result<State, Resources> &result1,
+    const flexman::core::Result<State, Resources> &result2)
 {
-    std::string improved  = std::string(quire::ansi::fg::bright_green) + "improved" + quire::ansi::util::reset;
-    std::string worsened  = std::string(quire::ansi::fg::bright_red) + "worsened" + quire::ansi::util::reset;
-    std::string unchanged = std::string(quire::ansi::util::reset) + "unchanged" + quire::ansi::util::reset;
-
     // Compare the number of Pareto fronts.
     if (result1.pareto_fronts.size() != result2.pareto_fronts.size()) {
         qwarning(
@@ -179,7 +214,7 @@ inline void save_results(
         root["modes"][i]["parameters"] << parameters[i];
         root["modes"][i]["mode"] << modes[i];
     }
-    if (!json::parser::write_file(filename, root, true, 4u)) {
+    if (!json::parser::write_file(filename, root, true, 4U)) {
         std::cerr << "Failed to save to `" << filename << "`.\n";
     }
 }
@@ -231,11 +266,11 @@ void setup_option_parser(cmdlp::Parser &parser)
     parser.addOption("-dl", "--timeout", "For how long is the algorithm supposed to run approximately", 120.0, false);
     parser.addToggle("-in", "--interactive", "Enable the interactive mode", false);
     // Search manager parameters.
-    parser.addOption("-it", "--iterations", "The number of iterations for the search", 12u, false);
+    parser.addOption("-it", "--iterations", "The number of iterations for the search", 12U, false);
     // Gear factors parameters.
-    parser.addOption("-gu", "--min_gear", "The minimum gear range", 5u, false);
-    parser.addOption("-gl", "--max_gear", "The maximum gear range", 50u, false);
-    parser.addOption("-gn", "--num_gear", "The minimum gear range", 8u, false);
+    parser.addOption("-gu", "--min_gear", "The minimum gear range", 5U, false);
+    parser.addOption("-gl", "--max_gear", "The maximum gear range", 50U, false);
+    parser.addOption("-gn", "--num_gear", "The minimum gear range", 8U, false);
     // The log level.
     parser.addMultiOption(
         "-lg", "--log_level", "The log level",
@@ -251,7 +286,7 @@ void setup_option_parser(cmdlp::Parser &parser)
     parser.addToggle("-pl", "--plot", "Plot the results", false);
 }
 
-int execute_in_discrete_mode(cmdlp::Parser &parser)
+auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
     tapping::discrete_search_t search;
@@ -264,10 +299,10 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
     search.interactive   = parser.getOption<bool>("--interactive");
 
     // Select the algorithm.
-    unsigned algorithm = parser.getOption<unsigned>("-a");
+    auto algorithm = parser.getOption<unsigned>("-a");
 
     // Get the number of iterations.
-    unsigned iterations = parser.getOption<unsigned>("--iterations");
+    auto iterations = parser.getOption<unsigned>("--iterations");
 
     // Create the gear factors.
     const auto gear_factors = tapping::linspace<double>(
@@ -280,7 +315,7 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
     std::vector<tapping::discrete_mode_t> modes;
     // The standard tapping parameters.
     tapping::parameters_t base_parameters;
-    for (flexman::mode_id_t i = 0; i < gear_factors.size(); ++i) {
+    for (flexman::core::ModeId i = 0; i < gear_factors.size(); ++i) {
         base_parameters.Gr = gear_factors[i];
         // Save a copy of the tapping parameters.
         parameters.emplace_back(base_parameters);
@@ -343,9 +378,10 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
     else if (parser.getOption<unsigned>("--run") == run_simulation) {
         // Vector of solutions.
         std::vector<tapping::simulation_t> simulations;
+        simulations.reserve(modes.size());
 
         // Number of simulation steps.
-        unsigned simulation_steps = static_cast<unsigned>(search.time_max / search.time_delta);
+        auto simulation_steps = static_cast<unsigned>(search.time_max / search.time_delta);
 
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
@@ -366,7 +402,7 @@ int execute_in_discrete_mode(cmdlp::Parser &parser)
     return 0;
 }
 
-int execute_in_continuous_mode(cmdlp::Parser &parser)
+auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
     tapping::continuous_search_t search;
@@ -379,10 +415,10 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
     search.interactive   = parser.getOption<bool>("--interactive");
 
     // Select the algorithm.
-    unsigned algorithm = parser.getOption<unsigned>("-a");
+    auto algorithm = parser.getOption<unsigned>("-a");
 
     // Get the number of iterations.
-    unsigned iterations = parser.getOption<unsigned>("--iterations");
+    auto iterations = parser.getOption<unsigned>("--iterations");
 
     // Create the gear factors.
     const auto gear_factors = tapping::linspace<double>(
@@ -395,7 +431,7 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
     std::vector<tapping::continous_mode_t> modes;
     // The standard tapping parameters.
     tapping::parameters_t base_parameters;
-    for (flexman::mode_id_t i = 0; i < gear_factors.size(); ++i) {
+    for (flexman::core::ModeId i = 0; i < gear_factors.size(); ++i) {
         base_parameters.Gr = gear_factors[i];
         // Save a copy of the tapping parameters.
         parameters.emplace_back(base_parameters);
@@ -458,9 +494,10 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
     else if (parser.getOption<unsigned>("--run") == run_simulation) {
         // Vector of solutions.
         std::vector<tapping::simulation_t> simulations;
+        simulations.reserve(modes.size());
 
         // Number of simulation steps.
-        unsigned simulation_steps = static_cast<unsigned>(search.time_max / search.time_delta);
+        auto simulation_steps = static_cast<unsigned>(search.time_max / search.time_delta);
 
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
@@ -483,7 +520,7 @@ int execute_in_continuous_mode(cmdlp::Parser &parser)
 
 } // namespace tapping
 
-int main(int argc, char *argv[])
+auto main(int argc, char *argv[]) -> int
 {
     json::config::string_delimiter_character = '"';
 

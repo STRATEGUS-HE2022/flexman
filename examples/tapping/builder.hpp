@@ -1,6 +1,22 @@
 /// @file builder.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Defines a builder for creating continuous and discrete modes.
+///
+/// @details
+/// This file provides the `builder_t` structure, which extends `parameters_t`
+/// and offers methods to generate:
+/// - Continuous-time state-space models.
+/// - Discrete-time modes derived from their continuous counterparts.
+///
+/// The builder facilitates structured and parameterized mode creation,
+/// ensuring consistency and flexibility in defining system dynamics for
+/// simulation and control applications.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 
@@ -19,7 +35,7 @@ struct builder_t : public parameters_t {
     }
 
     /// @brief Creates a continuous-time state space model.
-    inline auto make_continuous_mode(flexman::mode_id_t id) const noexcept
+    inline auto make_continuous_mode(flexman::core::ModeId id) const noexcept
     {
         // Rotations to depth.
         const auto R2D = (57.295779513 / 360) * Ts * Gr;
@@ -47,7 +63,7 @@ struct builder_t : public parameters_t {
     }
 
     /// @brief Creates a discrete-time mode.
-    inline auto make_discrete_mode(flexman::mode_id_t id, double sample_time) const noexcept
+    inline auto make_discrete_mode(flexman::core::ModeId id, double sample_time) const noexcept
     {
         // First, create the continuous-time mode.
         continous_mode_t ct_mode = this->make_continuous_mode(id);

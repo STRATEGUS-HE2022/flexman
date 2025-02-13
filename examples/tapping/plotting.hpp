@@ -1,6 +1,22 @@
 /// @file plotting.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief Plotting functions.
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Provides plotting utilities for visualizing simulation results and Pareto fronts.
+///
+/// @details
+/// This file defines functions to generate plots using Gnuplot. It supports:
+/// - Plotting Pareto fronts to visualize trade-offs between time and energy.
+/// - Plotting simulation results to analyze depth evolution over time.
+/// - Extracting relevant data (time, energy, depth) from solutions.
+/// - Configuring Gnuplot settings, including axis labels, legends, and grid styles.
+///
+/// These functions facilitate the graphical analysis of optimization
+/// and simulation results in the tapping system.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #include <array>
 #include <flexman/logging.hpp>

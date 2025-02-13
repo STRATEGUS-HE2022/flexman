@@ -1,6 +1,23 @@
 /// @file fsmlib_support.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Provides utility functions for serializing and deserializing FSMlib data structures.
+///
+/// @details
+/// This file defines:
+/// - String conversion utilities for `fsmlib::Vector` and `fsmlib::Matrix`.
+/// - JSON serialization (`operator<<`) and deserialization (`operator>>`)
+///   for `fsmlib::Vector`, `fsmlib::Matrix`, `fsmlib::control::StateSpace`,
+///   and `fsmlib::control::DiscreteStateSpace`.
+///
+/// These utilities facilitate the integration of FSMlib data structures with
+/// JSON-based data exchange, allowing easy storage and retrieval of system
+/// models.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #pragma once
 

@@ -1,6 +1,28 @@
 /// @file parameters.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief Tapping parameters.
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Defines the parameters for the tapping system.
+///
+/// @details
+/// This file provides the `parameters_t` structure, which encapsulates
+/// key physical and operational parameters of the tapping system.
+/// It includes:
+/// - Electrical parameters (voltage, resistance, inductance).
+/// - Mechanical properties (moment of inertia, friction coefficients).
+/// - System constants (gear ratio, thread slope, switching cost and time).
+///
+/// Additionally, this file provides:
+/// - Overloaded stream operators for easy output of parameter values.
+/// - JSON serialization and deserialization operators for storing and
+///   loading parameter configurations.
+///
+/// These definitions enable structured handling of tapping system
+/// parameters for modeling, simulation, and optimization processes.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #include <json/json.hpp>
 

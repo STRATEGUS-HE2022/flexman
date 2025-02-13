@@ -1,6 +1,22 @@
 /// @file resources.hpp
-/// @author Enrico Fraccaroli (enry.frak@gmail.com)
-/// @brief Tapping resources.
+/// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
+///
+/// @brief Defines resource usage metrics for tapping operations.
+///
+/// @details
+/// This file defines the `resources_t` structure, which tracks the energy and
+/// time consumed during tapping operations. It provides:
+/// - Operators for comparison (`==`, `!=`, `<`, `<=`) to facilitate resource evaluation.
+/// - Stream output operator for formatted printing.
+/// - JSON serialization and deserialization functions for easy data exchange.
+///
+/// These utilities support performance analysis and optimization in the
+/// tapping system.
+///
+/// @copyright Copyright (c) 2024-2025 Enrico Fraccaroli, University of Verona,
+/// University of North Carolina at Chapel Hill. Distributed under the BSD
+/// 3-Clause License. See LICENSE.md for details.
+///
 
 #include <fsmlib/feq.hpp>
 #include <json/json.hpp>
