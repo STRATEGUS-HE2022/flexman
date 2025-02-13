@@ -33,7 +33,7 @@ namespace flexman
 {
 enum : unsigned char {
     FLEXMAN_MAJOR_VERSION = 1, ///< Major version of the library.
-    FLEXMAN_MINOR_VERSION = 0, ///< Minor version of the library.
+    FLEXMAN_MINOR_VERSION = 1, ///< Minor version of the library.
     FLEXMAN_MICRO_VERSION = 0  ///< Micro version of the library.
 };
 } // namespace flexman
