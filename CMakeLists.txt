@@ -257,6 +257,22 @@ if(BUILD_EXAMPLES)
         cmdlp
     )
 
+    # Add the heating example.
+    add_executable(${PROJECT_NAME}_heating examples/heating/main.cpp)
+    target_include_directories(${PROJECT_NAME}_heating PUBLIC
+        ${PROJECT_SOURCE_DIR}/examples
+        ${numint_SOURCE_DIR}/include
+        ${fsmlib_SOURCE_DIR}/include
+        ${cmdlp_SOURCE_DIR}/include
+    )
+    target_link_libraries(${PROJECT_NAME}_heating PUBLIC
+        ${PROJECT_NAME}
+        numint
+        fsmlib
+        gpcpp
+        cmdlp
+    )
+
 endif(BUILD_EXAMPLES)
 
 # -----------------------------------------------------------------------------
