@@ -178,7 +178,7 @@ public:
     /// @param to The mode being switched to.
     ///
     /// @return The cost of switching modes.
-    virtual auto get_switch_cost(const State &current_state, const Mode &from, const Mode &to) const -> double = 0;
+    virtual auto get_switch_cost(const State &current_state, const Mode &from, const Mode &to) const -> Resources = 0;
 };
 
 } // namespace core

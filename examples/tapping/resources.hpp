@@ -44,6 +44,13 @@ inline bool operator!=(const resources_t &lhs, const resources_t &rhs) noexcept
     return !fsmlib::feq::approximately_equal(lhs.energy, rhs.energy);
 }
 
+inline resources_t &operator+=(resources_t &lhs, const resources_t &rhs) noexcept
+{
+    lhs.energy += rhs.energy;
+    lhs.time += rhs.time;
+    return lhs;
+}
+
 inline bool operator<=(const resources_t &lhs, const resources_t &rhs) noexcept
 {
     return fsmlib::feq::approximately_lesser_than_equal(lhs.energy, rhs.energy) &&

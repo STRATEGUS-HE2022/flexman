@@ -57,6 +57,35 @@ struct Solution {
     /// @brief Distance from the target state.
     double distance{};
 
+    /// @brief Returns true if the sequence of mode executions is empty.
+    ///
+    /// @return True if the sequence is empty, false otherwise.
+    auto is_empty() const -> bool
+    {
+        return sequence.empty();
+    }
+
+    /// @brief Returns the last mode execution in the sequence.
+    ///
+    /// @return The last ModeExecution object.
+    /// @throws std::out_of_range if the sequence is empty.
+    auto get_last_execution() const -> const ModeExecution &
+    {
+        if (sequence.empty()) {
+            throw std::out_of_range("Solution sequence is empty, cannot get last execution.");
+        }
+        return sequence.back();
+    }
+
+    /// @brief Returns the ID of the last mode in the sequence.
+    ///
+    /// @return The ID of the last mode.
+    /// @throws std::out_of_range if the sequence is empty.
+    auto get_last_mode_id() const -> ModeId
+    {
+        return get_last_execution().mode;
+    }
+
     /// @brief Compares two solutions for equality based on their sequences or resources.
     ///
     /// @param lhs The left-hand side solution.

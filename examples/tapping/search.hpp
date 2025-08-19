@@ -40,7 +40,7 @@ public:
     void updated_solution(solution_t &solution, const discrete_mode_t &mode) const override
     {
         // Update the state.
-        solution.state = fsmlib::multiply(mode.system.A, solution.state) + fsmlib::multiply(mode.system.B, mode.input);
+        solution.state    = fsmlib::multiply(mode.system.A, solution.state) + fsmlib::multiply(mode.system.B, mode.input);
         // Update the distance.
         solution.distance = this->distance(solution);
         // Update energy.
@@ -103,10 +103,10 @@ public:
         return true;
     }
 
-    double get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const discrete_mode_t &from, [[maybe_unused]] const discrete_mode_t &to) const override
+    resources_t get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const discrete_mode_t &from, [[maybe_unused]] const discrete_mode_t &to) const override
     {
-        // For now, return 0.0. This can be customized later.
-        return 0.0;
+        // For now, return zero resources. This can be customized later.
+        return resources_t{0.0, 0.0};
     }
 };
 
@@ -193,10 +193,10 @@ public:
         return true;
     }
 
-    double get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    resources_t get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
     {
-        // For now, return 0.0. This can be customized later.
-        return 0.0;
+        // For now, return zero resources. This can be customized later.
+        return resources_t{0.0, 0.0};
     }
 };
 

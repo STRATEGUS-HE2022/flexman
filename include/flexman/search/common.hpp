@@ -184,11 +184,16 @@ inline auto simulate_mode(
     flexman::core::Solution<State, Resources> previous;
 
     // Check if a mode switch is occurring and add the cost
-    if (!solution.sequence.empty() && solution.sequence.back().mode != mode.id) {
+    if (!solution.is_empty() && solution.get_last_mode_id() != mode.id) {
         // Get the previous mode
-        const Mode &from_mode = all_modes[solution.sequence.back().mode];
-        double switch_cost = search->get_switch_cost(solution.state, from_mode, mode);
-        solution.resources.energy += switch_cost; // Add to energy as a general cost
+        flexman::core::ModeId from_mode_id = solution.get_last_mode_id();
+        if (from_mode_id >= all_modes.size()) {
+            throw std::out_of_range("Invalid mode ID in solution sequence: " + std::to_string(from_mode_id));
+        }
+        // Get the mode from the all_modes vector.
+        const Mode &from_mode = all_modes[from_mode_id];
+        // Add the switch cost to the solution.
+        solution.resources += search->get_switch_cost(solution.state, from_mode, mode);
     }
 
     // Perform the simulation for the given number of steps, or until the
@@ -258,7 +263,7 @@ auto extend_solutions(
             // Iterate over the modes.
             for (const auto &mode : modes) {
                 // Check if we can switch to the new mode.
-                if (partial.sequence.empty() || manager->can_switch(modes[partial.sequence.back().mode], mode)) {
+                if (partial.is_empty() || manager->can_switch(modes[partial.get_last_mode_id()], mode)) {
                     // Simulate the given mode and store the new solution.
                     solutions.push_back(simulate_mode(manager, modes, mode, steps_per_iteration, partial));
                 }
@@ -269,12 +274,12 @@ auto extend_solutions(
             // Iterate over the modes. Start from the last mode in the sequence, or from the beginning if the sequence
             // is empty.
             flexman::core::ModeId start_mode_id = 0;
-            if (!partials.empty() && !partials[0].sequence.empty()) {
-                start_mode_id = partials[0].sequence.back().mode;
+            if (!partials.empty() && !partials[0].is_empty()) {
+                start_mode_id = partials[0].get_last_mode_id();
             }
             for (flexman::core::ModeId mode_id = start_mode_id; mode_id < modes.size(); ++mode_id) {
                 // Check if we can switch to the new mode.
-                if (partial.sequence.empty() || manager->can_switch(modes[partial.sequence.back().mode], modes[mode_id])) {
+                if (partial.is_empty() || manager->can_switch(modes[partial.get_last_mode_id()], modes[mode_id])) {
                     // Simulate the given mode and store the new solution.
                     solutions.push_back(simulate_mode(manager, modes, modes[mode_id], steps_per_iteration, partial));
                 }
@@ -284,7 +289,7 @@ auto extend_solutions(
         else {
             // Simulate the given mode and store the new solution.
             solutions.push_back(
-                simulate_mode(manager, modes, modes[partial.sequence.back().mode], steps_per_iteration, partial));
+                simulate_mode(manager, modes, modes[partial.get_last_mode_id()], steps_per_iteration, partial));
         }
         // Check if the timer has expired.
         if (global_timer.has_timeout()) {
@@ -499,8 +504,10 @@ auto wait_for_keypress() -> char
     return _getch(); // Return the character directly
 #else
     // Linux/Unix implementation using termios
-    struct termios oldt{};
-    struct termios newt{};
+    struct termios oldt {
+    };
+    struct termios newt {
+    };
     char ch = 0;
 
     // Get current terminal settings
