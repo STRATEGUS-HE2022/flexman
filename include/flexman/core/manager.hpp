@@ -162,6 +162,23 @@ public:
     ///
     /// @return Interpolated Resources instance.
     virtual auto interpolate_state(const State &s0, const State &s1, double rel) const -> State = 0;
+
+    /// @brief Checks if it is possible to switch from one mode to another.
+    ///
+    /// @param from The mode being switched from.
+    /// @param to The mode being switched to.
+    ///
+    /// @return True if the switch is allowed, false otherwise.
+    virtual auto can_switch(const Mode &from, const Mode &to) const -> bool = 0;
+
+    /// @brief Provides the cost of switching from one mode to another.
+    ///
+    /// @param current_state The current state of the system.
+    /// @param from The mode being switched from.
+    /// @param to The mode being switched to.
+    ///
+    /// @return The cost of switching modes.
+    virtual auto get_switch_cost(const State &current_state, const Mode &from, const Mode &to) const -> double = 0;
 };
 
 } // namespace core

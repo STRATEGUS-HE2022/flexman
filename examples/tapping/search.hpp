@@ -96,6 +96,18 @@ public:
         }
         return interpolated_state;
     }
+
+    bool can_switch([[maybe_unused]] const discrete_mode_t &from, [[maybe_unused]] const discrete_mode_t &to) const override
+    {
+        // For now, allow any switch. This can be customized later.
+        return true;
+    }
+
+    double get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const discrete_mode_t &from, [[maybe_unused]] const discrete_mode_t &to) const override
+    {
+        // For now, return 0.0. This can be customized later.
+        return 0.0;
+    }
 };
 
 class continuous_search_t : public flexman::core::Manager<state_t, continous_mode_t, resources_t>
@@ -173,6 +185,18 @@ public:
             interpolated_state[i] = s0[i] + rel * (s1[i] - s0[i]);
         }
         return interpolated_state;
+    }
+
+    bool can_switch([[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    {
+        // For now, allow any switch. This can be customized later.
+        return true;
+    }
+
+    double get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    {
+        // For now, return 0.0. This can be customized later.
+        return 0.0;
     }
 };
 

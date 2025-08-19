@@ -158,6 +158,7 @@ auto find_solution_closest_to_zero(
 /// @tparam Resources The type representing the resources.
 ///
 /// @param search Pointer to the search manager handling the simulation.
+/// @param all_modes The vector of all available modes.
 /// @param mode The mode being simulated.
 /// @param steps The number of steps to simulate.
 /// @param solution The initial solution to start the simulation from.
@@ -166,6 +167,7 @@ auto find_solution_closest_to_zero(
 template <typename State, typename Mode, class Resources>
 inline auto simulate_mode(
     const flexman::core::Manager<State, Mode, Resources> *search,
+    const std::vector<Mode> &all_modes,
     const Mode &mode,
     const unsigned steps,
     flexman::core::Solution<State, Resources> solution)
@@ -180,6 +182,14 @@ inline auto simulate_mode(
     }
 
     flexman::core::Solution<State, Resources> previous;
+
+    // Check if a mode switch is occurring and add the cost
+    if (!solution.sequence.empty() && solution.sequence.back().mode != mode.id) {
+        // Get the previous mode
+        const Mode &from_mode = all_modes[solution.sequence.back().mode];
+        double switch_cost = search->get_switch_cost(solution.state, from_mode, mode);
+        solution.resources.energy += switch_cost; // Add to energy as a general cost
+    }
 
     // Perform the simulation for the given number of steps, or until the
     // solution is complete.
@@ -247,23 +257,34 @@ auto extend_solutions(
         if constexpr (SwitchMode == SwitchingMode::Free) {
             // Iterate over the modes.
             for (const auto &mode : modes) {
-                // Simulate the given mode and store the new solution.
-                solutions.push_back(simulate_mode(manager, mode, steps_per_iteration, partial));
+                // Check if we can switch to the new mode.
+                if (partial.sequence.empty() || manager->can_switch(modes[partial.sequence.back().mode], mode)) {
+                    // Simulate the given mode and store the new solution.
+                    solutions.push_back(simulate_mode(manager, modes, mode, steps_per_iteration, partial));
+                }
             }
         }
         // We switch to only subsequent machines.
         else if constexpr (SwitchMode == SwitchingMode::Increasing) {
-            // Iterate over the modes.
-            for (flexman::core::ModeId mode = partial.sequence.back(); mode < modes.size(); ++mode) {
-                // Simulate the given mode and store the new solution.
-                solutions.push_back(simulate_mode(manager, modes[mode], steps_per_iteration, partial));
+            // Iterate over the modes. Start from the last mode in the sequence, or from the beginning if the sequence
+            // is empty.
+            flexman::core::ModeId start_mode_id = 0;
+            if (!partials.empty() && !partials[0].sequence.empty()) {
+                start_mode_id = partials[0].sequence.back().mode;
+            }
+            for (flexman::core::ModeId mode_id = start_mode_id; mode_id < modes.size(); ++mode_id) {
+                // Check if we can switch to the new mode.
+                if (partial.sequence.empty() || manager->can_switch(modes[partial.sequence.back().mode], modes[mode_id])) {
+                    // Simulate the given mode and store the new solution.
+                    solutions.push_back(simulate_mode(manager, modes, modes[mode_id], steps_per_iteration, partial));
+                }
             }
         }
         // Simple case without any switching.
         else {
             // Simulate the given mode and store the new solution.
             solutions.push_back(
-                simulate_mode(manager, modes[partial.sequence.back().mode], steps_per_iteration, partial));
+                simulate_mode(manager, modes, modes[partial.sequence.back().mode], steps_per_iteration, partial));
         }
         // Check if the timer has expired.
         if (global_timer.has_timeout()) {
