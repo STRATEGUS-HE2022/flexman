@@ -64,6 +64,8 @@ public:
     timelib::timespec_t timeout;
     /// @brief Each step is stopped until the user presses a key.
     bool interactive{};
+    /// @brief The factor by which the step length is coarsened in each iteration.
+    unsigned coarsening_factor{2};
 
     /// @brief Default constructor.
     Manager() = default;

@@ -300,15 +300,18 @@ auto perform_search(
     if constexpr (Algorithm == SearchAlgorithm::SingleMachine) {
         init_stride = 1U;
     }
-    // Start with the highest power of 2.
+    // Start with the highest power of the coarsening factor.
     else {
-        init_stride = 1U << (iterations - 1);
+        if (manager->coarsening_factor == 0) {
+            throw std::invalid_argument("Coarsening factor cannot be zero.");
+        }
+        init_stride = static_cast<unsigned>(std::pow(manager->coarsening_factor, iterations - 1));
     }
 
     qinfo(logging::search, "\n");
     qinfo(logging::search, "| Max Iterations | Steps Per Iteration | Time Delta |\n");
     qinfo(logging::search, "|----------------|---------------------|------------|\n");
-    for (unsigned steps_per_iteration = init_stride; steps_per_iteration >= 1; steps_per_iteration /= 2) {
+    for (unsigned steps_per_iteration = init_stride; steps_per_iteration >= 1; steps_per_iteration /= manager->coarsening_factor) {
         // Calculate the time covered in each iteration.
         const double time_per_iteration = manager->time_delta * static_cast<double>(steps_per_iteration);
         // Determine the maximum number of steps allowed.

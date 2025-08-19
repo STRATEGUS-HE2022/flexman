@@ -1,19 +1,19 @@
 /// @file main.cpp
 /// @author Enrico Fraccaroli (enrico.fraccaroli@univr.it)
 ///
-/// @brief Entry point for the tapping system search and simulation.
+/// @brief Entry point for the heating system search and simulation.
 ///
 /// @details
-/// This program executes search and simulation routines for a tapping system.
+/// This program executes search and simulation routines for a heating system.
 /// It provides command-line options for selecting discrete or continuous mode,
 /// specifying search algorithms, enabling post-search optimization (PSO),
 /// and configuring search parameters such as iterations, gear range, and
 /// maximum simulation time.
 ///
 /// Supported functionalities:
-/// - **Search Mode**: Finds optimal tapping sequences using heuristic,
+/// - **Search Mode**: Finds optimal heating sequences using heuristic,
 ///   exhaustive, or single-machine search.
-/// - **Simulation Mode**: Simulates the tapping process under specified modes.
+/// - **Simulation Mode**: Simulates the heating process under specified modes.
 /// - **Pareto Front Analysis**: Computes and logs Pareto-optimal solutions.
 /// - **Post-Search Optimization**: Uses Particle Swarm Optimization (PSO) to
 ///   refine the search results.
@@ -41,7 +41,7 @@
 #include <flexman/serialization.hpp>
 #include <flexman/simulation/simulate.hpp>
 
-namespace tapping
+namespace heating
 {
 
 enum run_option : unsigned char {
@@ -77,7 +77,7 @@ inline auto compare_ascending(const solution_t &lhs, const solution_t &rhs) -> b
 /// @brief Logs the details of each Pareto front and its solutions.
 /// @param manager The search manager.
 /// @param results The result set.
-inline void log_results(quire::log_level log_level, const tapping::result_t &results)
+inline void log_results(quire::log_level log_level, const heating::result_t &results)
 {
     qlog(flexman::logging::app, log_level, "============================================================\n");
     for (const auto &pareto : results.pareto_fronts) {
@@ -197,7 +197,7 @@ void compare_results(
 template <typename SearchManager, typename Parameter, typename Mode>
 inline void save_results(
     const SearchManager &manager,
-    const tapping::result_t &results,
+    const heating::result_t &results,
     const std::vector<Parameter> &parameters,
     const std::vector<Mode> &modes,
     const std::string &filename)
@@ -259,7 +259,7 @@ void setup_option_parser(cmdlp::Parser &parser)
     // Set the output file.
     parser.addOption("-o", "--output", "The file where the execution results are saved", false, "output.json");
     // Search parameters.
-    parser.addOption("-dp", "--depth", "The target tapping depth", false, 40.0);
+    parser.addOption("-tt", "--target_temperature", "The target temperature", false, 40.0);
     parser.addOption("-tm", "--time_max", "The maximum simulated time", false, 120.0);
     parser.addOption("-td", "--time_delta", "The time delta", false, 0.01);
     parser.addOption("-th", "--threshold", "Used to determine when a solution is considered complete", false, 0.01);
@@ -268,10 +268,8 @@ void setup_option_parser(cmdlp::Parser &parser)
     // Search manager parameters.
     parser.addOption("-it", "--iterations", "The number of iterations for the search", false, 12U);
     // Gear factors parameters.
-    parser.addOption("-gu", "--min_gear", "The minimum gear range", false, 5U);
-    parser.addOption("-gl", "--max_gear", "The maximum gear range", false, 50U);
-    parser.addOption("-gn", "--num_gear", "The minimum gear range", false, 8U);
     parser.addOption("-cf", "--coarsening_factor", "The factor by which the step length is coarsened in each iteration", false, 2U);
+    
     // The log level.
     parser.addMultiOption(
         "-lg", "--log_level", "The log level",
@@ -290,9 +288,9 @@ void setup_option_parser(cmdlp::Parser &parser)
 auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
-    tapping::discrete_search_t search;
-    search.initial_state = {0, 0, 0};
-    search.target_state  = {0, 0, parser.getOption<double>("--depth")};
+    heating::discrete_search_t search;
+    search.initial_state = {0.0};
+    search.target_state  = {parser.getOption<double>("--target_temperature")};
     search.time_max      = parser.getOption<double>("--time_max");
     search.time_delta    = parser.getOption<double>("--time_delta");
     search.threshold     = parser.getOption<double>("--threshold");
@@ -306,28 +304,29 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
     // Get the number of iterations.
     auto iterations = parser.getOption<unsigned>("--iterations");
 
-    // Create the gear factors.
-    const auto gear_factors = tapping::linspace<double>(
-        parser.getOption<unsigned>("--max_gear"), parser.getOption<unsigned>("--min_gear"),
-        parser.getOption<unsigned>("--num_gear"));
+    // Define a few discrete input power levels.
+    const std::vector<double> input_power_levels = {0.0, 1.0, 2.0, 3.0};
 
     // Vector of model builders.
-    std::vector<tapping::parameters_t> parameters;
+    std::vector<heating::parameters_t> parameters; // Still needed for save_results
     // Vector of modes.
-    std::vector<tapping::discrete_mode_t> modes;
-    // The standard tapping parameters.
-    tapping::parameters_t base_parameters;
-    for (flexman::core::ModeId i = 0; i < gear_factors.size(); ++i) {
-        base_parameters.Gr = gear_factors[i];
-        // Save a copy of the tapping parameters.
-        parameters.emplace_back(base_parameters);
+    std::vector<heating::discrete_mode_t> modes;
+    // The standard heating parameters.
+    heating::parameters_t base_parameters; // Use default parameters
+
+    for (flexman::core::ModeId i = 0; i < input_power_levels.size(); ++i) {
         // Generate the mode.
-        modes.emplace_back(tapping::builder_t(base_parameters).make_discrete_mode(i, search.time_delta));
+        heating::discrete_mode_t mode = heating::builder_t(base_parameters).make_discrete_mode(i, search.time_delta);
+        mode.input[0] = input_power_levels[i]; // Set the actual input power
+        modes.emplace_back(mode);
+
+        // Save a copy of the heating parameters (can be default, or varied if needed)
+        parameters.emplace_back(base_parameters);
     }
 
     // Run the search.
     if (parser.getOption<unsigned>("--run") == run_search) {
-        tapping::result_t results;
+        heating::result_t results;
 
         qinfo(flexman::logging::app, "Searching...\n");
         if (algorithm == algorithm_heuristic) {
@@ -344,14 +343,14 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
         // Sort the results.
         qinfo(flexman::logging::app, "Sorting solutions...\n");
         for (auto &pareto : results.pareto_fronts) {
-            std::sort(pareto.solutions.begin(), pareto.solutions.end(), tapping::compare_ascending);
+            std::sort(pareto.solutions.begin(), pareto.solutions.end(), heating::compare_ascending);
         }
 
         // Log the results.
-        tapping::log_results(quire::info, results);
+        heating::log_results(quire::info, results);
 
         // Save results.
-        tapping::save_results(search, results, parameters, modes, parser.getOption<std::string>("--output"));
+        heating::save_results(search, results, parameters, modes, parser.getOption<std::string>("--output"));
 
         // Apply PSO if requested.
         if (parser.getOption<bool>("--pso")) {
@@ -365,7 +364,7 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
             };
             auto optimized = flexman::pso::optimize_result(&search, solver_params, modes, results);
             // Log the results.
-            tapping::log_results(quire::info, optimized);
+            heating::log_results(quire::info, optimized);
             // Compare the results.
             compare_results(results, optimized);
         }
@@ -373,13 +372,13 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
         // Plot the results.
         if (parser.getOption<bool>("--plot")) {
             qinfo(flexman::logging::app, "Plotting solutions...\n");
-            tapping::plot_pareto_front(results);
+            heating::plot_pareto_front(results);
         }
     }
     // Run the simulation.
     else if (parser.getOption<unsigned>("--run") == run_simulation) {
         // Vector of solutions.
-        std::vector<tapping::simulation_t> simulations;
+        std::vector<heating::simulation_t> simulations;
         simulations.reserve(modes.size());
 
         // Number of simulation steps.
@@ -388,7 +387,7 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
         for (const auto &mode : modes) {
-            simulations.emplace_back(tapping::simulation_t{
+            simulations.emplace_back(heating::simulation_t{
                 .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
                 .name = "Mode " + std::to_string(mode.id),
             });
@@ -397,7 +396,7 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
         // Plot the results.
         if (parser.getOption<bool>("--plot")) {
             qinfo(flexman::logging::app, "Plotting...\n");
-            tapping::plot_simulations(simulations);
+            heating::plot_simulations(simulations);
         }
     }
 
@@ -407,9 +406,9 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
 auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
-    tapping::continuous_search_t search;
-    search.initial_state = {0, 0, 0};
-    search.target_state  = {0, 0, parser.getOption<double>("--depth")};
+    heating::continuous_search_t search;
+    search.initial_state = {0.0};
+    search.target_state  = {parser.getOption<double>("--target_temperature")};
     search.time_max      = parser.getOption<double>("--time_max");
     search.time_delta    = parser.getOption<double>("--time_delta");
     search.threshold     = parser.getOption<double>("--threshold");
@@ -423,28 +422,29 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
     // Get the number of iterations.
     auto iterations = parser.getOption<unsigned>("--iterations");
 
-    // Create the gear factors.
-    const auto gear_factors = tapping::linspace<double>(
-        parser.getOption<unsigned>("--max_gear"), parser.getOption<unsigned>("--min_gear"),
-        parser.getOption<unsigned>("--num_gear"));
+    // Define a few discrete input power levels.
+    const std::vector<double> input_power_levels = {0.0, 1.0, 2.0, 3.0};
 
     // Vector of model builders.
-    std::vector<tapping::parameters_t> parameters;
+    std::vector<heating::parameters_t> parameters; // Still needed for save_results
     // Vector of modes.
-    std::vector<tapping::continous_mode_t> modes;
-    // The standard tapping parameters.
-    tapping::parameters_t base_parameters;
-    for (flexman::core::ModeId i = 0; i < gear_factors.size(); ++i) {
-        base_parameters.Gr = gear_factors[i];
-        // Save a copy of the tapping parameters.
-        parameters.emplace_back(base_parameters);
+    std::vector<heating::continous_mode_t> modes; // Note: continous_mode_t
+    // The standard heating parameters.
+    heating::parameters_t base_parameters; // Use default parameters
+
+    for (flexman::core::ModeId i = 0; i < input_power_levels.size(); ++i) {
         // Generate the mode.
-        modes.emplace_back(tapping::builder_t(base_parameters).make_continuous_mode(i));
+        heating::continous_mode_t mode = heating::builder_t(base_parameters).make_continuous_mode(i); // Note: make_continuous_mode
+        mode.input[0] = input_power_levels[i]; // Set the actual input power
+        modes.emplace_back(mode);
+
+        // Save a copy of the heating parameters (can be default, or varied if needed)
+        parameters.emplace_back(base_parameters);
     }
 
     // Run the search.
     if (parser.getOption<unsigned>("--run") == run_search) {
-        tapping::result_t results;
+        heating::result_t results;
 
         qinfo(flexman::logging::app, "Searching...\n");
         if (algorithm == algorithm_heuristic) {
@@ -461,14 +461,14 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
         // Sort the results.
         qinfo(flexman::logging::app, "Sorting solutions...\n");
         for (auto &pareto : results.pareto_fronts) {
-            std::sort(pareto.solutions.begin(), pareto.solutions.end(), tapping::compare_ascending);
+            std::sort(pareto.solutions.begin(), pareto.solutions.end(), heating::compare_ascending);
         }
 
         // Log the results.
-        tapping::log_results(quire::info, results);
+        heating::log_results(quire::info, results);
 
         // Save the results.
-        tapping::save_results(search, results, parameters, modes, parser.getOption<std::string>("--output"));
+        heating::save_results(search, results, parameters, modes, parser.getOption<std::string>("--output"));
 
         // Apply PSO if requested.
         if (parser.getOption<bool>("--pso")) {
@@ -482,7 +482,7 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
             };
             auto optimized = flexman::pso::optimize_result(&search, solver_params, modes, results);
             // Log the results.
-            tapping::log_results(quire::info, optimized);
+            heating::log_results(quire::info, optimized);
             // Compare the results.
             compare_results(results, optimized);
         }
@@ -490,13 +490,13 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
         // Plot the results.
         if (parser.getOption<bool>("--plot")) {
             qinfo(flexman::logging::app, "Plotting solutions...\n");
-            tapping::plot_pareto_front(results);
+            heating::plot_pareto_front(results);
         }
     }
     // Run the simulation.
     else if (parser.getOption<unsigned>("--run") == run_simulation) {
         // Vector of solutions.
-        std::vector<tapping::simulation_t> simulations;
+        std::vector<heating::simulation_t> simulations;
         simulations.reserve(modes.size());
 
         // Number of simulation steps.
@@ -505,7 +505,7 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
         // Run the simulation.
         qinfo(flexman::logging::app, "Simulating...\n");
         for (const auto &mode : modes) {
-            simulations.emplace_back(tapping::simulation_t{
+            simulations.emplace_back(heating::simulation_t{
                 .data = flexman::simulation::simulate_single_mode(&search, mode, simulation_steps),
                 .name = "Mode " + std::to_string(mode.id),
             });
@@ -514,14 +514,14 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
         // Plot the results.
         if (parser.getOption<bool>("--plot")) {
             qinfo(flexman::logging::app, "Plotting...\n");
-            tapping::plot_simulations(simulations);
+            heating::plot_simulations(simulations);
         }
     }
 
     return 0;
 }
 
-} // namespace tapping
+} // namespace heating
 
 auto main(int argc, char *argv[]) -> int
 {
@@ -529,7 +529,7 @@ auto main(int argc, char *argv[]) -> int
 
     cmdlp::Parser parser(argc, argv);
 
-    tapping::setup_option_parser(parser);
+    heating::setup_option_parser(parser);
 
     parser.parseOptions();
 
@@ -558,11 +558,11 @@ auto main(int argc, char *argv[]) -> int
             {quire::option_t::time, quire::option_t::header, quire::option_t::level, quire::option_t::location});
     }
 
-    if (parser.getOption<unsigned>("-m") == tapping::mode_discrete) {
-        return tapping::execute_in_discrete_mode(parser);
+    if (parser.getOption<unsigned>("-m") == heating::mode_discrete) {
+        return heating::execute_in_discrete_mode(parser);
     }
-    if (parser.getOption<unsigned>("-m") == tapping::mode_continuous) {
-        return tapping::execute_in_continuous_mode(parser);
+    if (parser.getOption<unsigned>("-m") == heating::mode_continuous) {
+        return heating::execute_in_continuous_mode(parser);
     }
     return 0;
 }

@@ -230,6 +230,7 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::Manager<State, M
     lhs["threshold"] << rhs.threshold;
     lhs["timeout"] << rhs.timeout;
     lhs["interactive"] << rhs.interactive;
+    lhs["coarsening_factor"] << rhs.coarsening_factor;
     return lhs;
 }
 
@@ -254,6 +255,7 @@ inline auto operator>>(const json::jnode_t &lhs, flexman::core::Manager<State, M
     lhs["threshold"] >> rhs.threshold;
     lhs["timeout"] >> rhs.timeout;
     lhs["interactive"] >> rhs.interactive;
+    lhs["coarsening_factor"] >> rhs.coarsening_factor;
     return lhs;
 }
 
