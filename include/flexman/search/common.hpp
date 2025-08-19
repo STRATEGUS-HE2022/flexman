@@ -304,6 +304,55 @@ auto extend_solutions(
     return solutions;
 }
 
+/// @brief Calculates dominance information for a set of solutions.
+///
+/// @tparam Algorithm The search algorithm used to evaluate dominance.
+/// @tparam State The type representing the state.
+/// @tparam Mode The type representing the mode.
+/// @tparam Resources The type representing the resources.
+///
+/// @param manager Pointer to the search manager handling the process.
+/// @param solutions The vector of solutions to analyze.
+/// @param dominated_by_this_solution Output: A vector where each element at index `i`
+/// contains a list of indices of solutions that `solutions[i]` dominates.
+/// @param domination_count Output: A vector where each element at index `i`
+/// contains the count of solutions that dominate `solutions[i]`.
+template <SearchAlgorithm Algorithm, typename State, typename Mode, class Resources>
+static inline void calculate_dominance_info(
+    const flexman::core::Manager<State, Mode, Resources> *manager,
+    const std::vector<flexman::core::Solution<State, Resources>> &solutions,
+    std::vector<std::vector<std::size_t>> &dominated_by_this_solution,
+    std::vector<std::size_t> &domination_count)
+{
+    // Resize output vectors to match solutions size
+    dominated_by_this_solution.assign(solutions.size(), std::vector<std::size_t>());
+    domination_count.assign(solutions.size(), 0);
+
+    for (std::size_t i = 0; i < solutions.size(); ++i) {
+        for (std::size_t j = i + 1; j < solutions.size(); ++j) {
+            // Determine dominance relationship between solutions[i] and solutions[j]
+            bool i_dominates_j = false;
+            bool j_dominates_i = false;
+
+            if constexpr (Algorithm == SearchAlgorithm::Heuristic) {
+                i_dominates_j = manager->is_probably_better_than(solutions[i], solutions[j]);
+                j_dominates_i = manager->is_probably_better_than(solutions[j], solutions[i]);
+            } else { // Exhaustive or SingleMachine
+                i_dominates_j = manager->is_strictly_better_than(solutions[i], solutions[j]);
+                j_dominates_i = manager->is_strictly_better_than(solutions[j], solutions[i]);
+            }
+
+            if (i_dominates_j) {
+                dominated_by_this_solution[i].push_back(j);
+                domination_count[j]++;
+            } else if (j_dominates_i) {
+                dominated_by_this_solution[j].push_back(i);
+                domination_count[i]++;
+            }
+        }
+    }
+}
+
 /// @brief Removes solutions that are dominated by any solution in the given set.
 ///
 /// @tparam Algorithm The search algorithm used to evaluate dominance.
@@ -357,6 +406,7 @@ void remove_dominated_solutions(
     qdebug(logging::common, "[%8u] After removing dominated solutions.\n", solutions.size());
 }
 
+
 /// @brief Removes dominated solutions from a vector.
 ///
 /// @tparam Algorithm The search algorithm used to evaluate dominance.
@@ -385,48 +435,28 @@ void remove_dominated_solutions(
         return;
     }
 
-    // Vector to store indices of solutions to keep.
-    std::vector<std::size_t> solutions_to_keep_idx;
-    solutions_to_keep_idx.reserve(solutions.size());
+    std::vector<std::vector<std::size_t>> dominated_by_this_solution;
+    std::vector<std::size_t> domination_count;
 
-    // Identify solutions to keep.
-    for (std::size_t i = 0; i < solutions.size(); ++i) {
-        const auto &solution = solutions[i];
-        bool is_dominated    = false;
-        for (const auto &other_solution : solutions) {
-            // Skip comparing a solution with itself.
-            if (&solution == &other_solution) {
-                continue;
-            }
-            // Check dominance.
-            if constexpr (Algorithm == SearchAlgorithm::Heuristic) {
-                if (manager->is_probably_better_than(other_solution, solution)) {
-                    is_dominated = true;
-                    break;
-                }
-            } else {
-                if (manager->is_strictly_better_than(other_solution, solution)) {
-                    is_dominated = true;
-                    break;
-                }
-            }
-        }
-        if (!is_dominated) {
-            solutions_to_keep_idx.push_back(i);
-        }
-    }
+    // Call the specialized helper function to calculate dominance info
+    calculate_dominance_info<Algorithm>(manager, solutions, dominated_by_this_solution, domination_count);
 
-    // Rebuild the solutions vector with only the kept solutions.
+    // Identify solutions to keep (those not dominated by any other)
     std::vector<flexman::core::Solution<State, Resources>> filtered_solutions;
-    filtered_solutions.reserve(solutions_to_keep_idx.size());
+    filtered_solutions.reserve(solutions.size()); // Reserve max possible size
 
-    for (std::size_t idx : solutions_to_keep_idx) {
-        filtered_solutions.push_back(std::move(solutions[idx]));
+    for (std::size_t i = 0; i < solutions.size(); ++i) {
+        if (domination_count[i] == 0) {
+            filtered_solutions.push_back(std::move(solutions[i]));
+        }
     }
 
-    // Swap filtered solutions back into the original vector.
+    // Replace the original solutions with the filtered ones
     solutions.swap(filtered_solutions);
+
+    qdebug(logging::common, "[%8u] After removing dominated solutions.\n", solutions.size());
 }
+
 
 /// @brief Removes duplicate solutions from the given set of solutions.
 ///
