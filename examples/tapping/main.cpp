@@ -431,7 +431,7 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
     // Vector of model builders.
     std::vector<tapping::parameters_t> parameters;
     // Vector of modes.
-    std::vector<tapping::continous_mode_t> modes;
+    std::vector<tapping::continuous_mode_t> modes;
     // The standard tapping parameters.
     tapping::parameters_t base_parameters;
     for (flexman::core::ModeId i = 0; i < gear_factors.size(); ++i) {

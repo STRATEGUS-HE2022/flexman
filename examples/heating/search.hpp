@@ -34,6 +34,13 @@ public:
         solution.resources.energy += solution.state[0] * mode.input[0] * time_delta;
         // Update time.
         solution.resources.time += time_delta;
+        std::cout << std::fixed << std::setprecision(3);
+        std::cout << "[ " << std::setw(6) << std::right << solution.resources.time << " ] ";
+        std::cout << "[ " << std::setw(2) << std::right << static_cast<unsigned>(mode.id) << " ] ";
+        std::cout << std::setw(3) << std::left << mode.input[0] << " -> [";
+        std::cout << std::setw(4) << std::right << solution.state[0] << ", ";
+        std::cout << std::setw(4) << std::right << solution.state[1] << "] ";
+        std::cout << std::setw(4) << std::right << solution.distance << "\n";
     }
 
     double distance(const solution_t &solution) const override { return target_state[0] - solution.state[0]; }
@@ -97,12 +104,12 @@ public:
     }
 };
 
-class continuous_search_t : public flexman::core::Manager<state_t, continous_mode_t, resources_t>
+class continuous_search_t : public flexman::core::Manager<state_t, continuous_mode_t, resources_t>
 {
 public:
     continuous_search_t() = default;
 
-    void updated_solution(solution_t &solution, const continous_mode_t &mode) const override
+    void updated_solution(solution_t &solution, const continuous_mode_t &mode) const override
     {
         // Update the state.
         numint::stepper_rk4<state_t, double> solver;
@@ -174,13 +181,13 @@ public:
         return interpolated_state;
     }
 
-    bool can_switch([[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    bool can_switch([[maybe_unused]] const continuous_mode_t &from, [[maybe_unused]] const continuous_mode_t &to) const override
     {
         // For now, allow any switch. This can be customized later.
         return true;
     }
 
-    resources_t get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    resources_t get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continuous_mode_t &from, [[maybe_unused]] const continuous_mode_t &to) const override
     {
         // For now, return zero resources. This can be customized later.
         return resources_t{0.0, 0.0};

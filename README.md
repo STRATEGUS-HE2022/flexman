@@ -99,11 +99,11 @@ using pareto_front_t = flexman::core::ParetoFront<state_t, resources_t>;
 /// @brief Discrete state-space system representation.
 using discrete_system_t = fsmlib::control::DiscreteStateSpace<double, n_states, n_input, n_output>;
 /// @brief Continuous state-space system representation.
-using continous_system_t = fsmlib::control::StateSpace<double, n_states, n_input, n_output>;
+using continuous_system_t = fsmlib::control::StateSpace<double, n_states, n_input, n_output>;
 /// @brief Mode representation for discrete systems.
 using discrete_mode_t = flexman::core::Mode<discrete_system_t, input_t>;
 /// @brief Mode representation for continuous systems.
-using continous_mode_t = flexman::core::Mode<continous_system_t, input_t>;
+using continuous_mode_t = flexman::core::Mode<continuous_system_t, input_t>;
 } // namespace tapping
 ```
 
@@ -126,7 +126,7 @@ in the tapping example we create a continuous-time mode this way:
 /// @brief Creates a continuous-time state space model.
 inline auto make_continuous_mode(flexman::ModeId id) const noexcept
 {
-    continous_mode_t mode;
+    continuous_mode_t mode;
     mode.id       = id;
     mode.input    = { ... };
     mode.system.A = { ... };
@@ -146,7 +146,7 @@ tapping example:
 inline auto make_discrete_mode(flexman::ModeId id, double sample_time) const noexcept
 {
     // First, create the continuous-time mode.
-    continous_mode_t ct_mode = this->make_continuous_mode(id);
+    continuous_mode_t ct_mode = this->make_continuous_mode(id);
     // Create the discrete-time mode
     discrete_mode_t mode;
     // Initialize the discrete-time mode.

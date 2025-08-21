@@ -40,7 +40,7 @@ struct builder_t : public parameters_t {
         // Rotations to depth.
         const auto R2D = (57.295779513 / 360) * Ts * Gr;
         // Create the mode.
-        continous_mode_t mode;
+        continuous_mode_t mode;
         mode.id       = id;
         mode.input    = {V, Fs};
         mode.system.A = {{-Kb / J, Kt / J, -Fd * Gr / J}, {-Ke / L, -R / L, 0.0}, {R2D, 0.0, 0.0}};
@@ -66,7 +66,7 @@ struct builder_t : public parameters_t {
     inline auto make_discrete_mode(flexman::core::ModeId id, double sample_time) const noexcept
     {
         // First, create the continuous-time mode.
-        continous_mode_t ct_mode = this->make_continuous_mode(id);
+        continuous_mode_t ct_mode = this->make_continuous_mode(id);
         // Create the discrete-time mode
         discrete_mode_t mode;
         // Initialize the discrete-time mode.

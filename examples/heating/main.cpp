@@ -259,6 +259,8 @@ void setup_option_parser(cmdlp::Parser &parser)
     // Set the output file.
     parser.addOption("-o", "--output", "The file where the execution results are saved", false, "output.json");
     // Search parameters.
+    parser.addOption("-ti", "--temperature_initial", "The initial temperature of the workpiece", false, 20.0);
+    parser.addOption("-te", "--temperature_environment", "The initial temperature of the environment", false, 20.0);
     parser.addOption("-tt", "--target_temperature", "The target temperature", false, 40.0);
     parser.addOption("-tm", "--time_max", "The maximum simulated time", false, 120.0);
     parser.addOption("-td", "--time_delta", "The time delta", false, 0.01);
@@ -269,7 +271,7 @@ void setup_option_parser(cmdlp::Parser &parser)
     parser.addOption("-it", "--iterations", "The number of iterations for the search", false, 12U);
     // Gear factors parameters.
     parser.addOption("-cf", "--coarsening_factor", "The factor by which the step length is coarsened in each iteration", false, 2U);
-    
+
     // The log level.
     parser.addMultiOption(
         "-lg", "--log_level", "The log level",
@@ -289,13 +291,19 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
     heating::discrete_search_t search;
-    search.initial_state = {0.0};
-    search.target_state  = {parser.getOption<double>("--target_temperature")};
-    search.time_max      = parser.getOption<double>("--time_max");
-    search.time_delta    = parser.getOption<double>("--time_delta");
-    search.threshold     = parser.getOption<double>("--threshold");
-    search.timeout       = parser.getOption<double>("--timeout");
-    search.interactive   = parser.getOption<bool>("--interactive");
+    search.initial_state = {
+        parser.getOption<double>("--temperature_initial"),
+        parser.getOption<double>("--temperature_environment"),
+    };
+    search.target_state = {
+        parser.getOption<double>("--target_temperature"),
+        parser.getOption<double>("--target_temperature"),
+    };
+    search.time_max          = parser.getOption<double>("--time_max");
+    search.time_delta        = parser.getOption<double>("--time_delta");
+    search.threshold         = parser.getOption<double>("--threshold");
+    search.timeout           = parser.getOption<double>("--timeout");
+    search.interactive       = parser.getOption<bool>("--interactive");
     search.coarsening_factor = parser.getOption<unsigned>("--coarsening_factor");
 
     // Select the algorithm.
@@ -317,7 +325,7 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
     for (flexman::core::ModeId i = 0; i < input_power_levels.size(); ++i) {
         // Generate the mode.
         heating::discrete_mode_t mode = heating::builder_t(base_parameters).make_discrete_mode(i, search.time_delta);
-        mode.input[0] = input_power_levels[i]; // Set the actual input power
+        mode.input[0]                 = input_power_levels[i]; // Set the actual input power
         modes.emplace_back(mode);
 
         // Save a copy of the heating parameters (can be default, or varied if needed)
@@ -407,13 +415,19 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
     heating::continuous_search_t search;
-    search.initial_state = {0.0};
-    search.target_state  = {parser.getOption<double>("--target_temperature")};
-    search.time_max      = parser.getOption<double>("--time_max");
-    search.time_delta    = parser.getOption<double>("--time_delta");
-    search.threshold     = parser.getOption<double>("--threshold");
-    search.timeout       = parser.getOption<double>("--timeout");
-    search.interactive   = parser.getOption<bool>("--interactive");
+    search.initial_state = {
+        parser.getOption<double>("--temperature_initial"),
+        parser.getOption<double>("--temperature_environment"),
+    };
+    search.target_state = {
+        parser.getOption<double>("--target_temperature"),
+        parser.getOption<double>("--target_temperature"),
+    };
+    search.time_max          = parser.getOption<double>("--time_max");
+    search.time_delta        = parser.getOption<double>("--time_delta");
+    search.threshold         = parser.getOption<double>("--threshold");
+    search.timeout           = parser.getOption<double>("--timeout");
+    search.interactive       = parser.getOption<bool>("--interactive");
     search.coarsening_factor = parser.getOption<unsigned>("--coarsening_factor");
 
     // Select the algorithm.
@@ -428,14 +442,14 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
     // Vector of model builders.
     std::vector<heating::parameters_t> parameters; // Still needed for save_results
     // Vector of modes.
-    std::vector<heating::continous_mode_t> modes; // Note: continous_mode_t
+    std::vector<heating::continuous_mode_t> modes; // Note: continuous_mode_t
     // The standard heating parameters.
     heating::parameters_t base_parameters; // Use default parameters
 
     for (flexman::core::ModeId i = 0; i < input_power_levels.size(); ++i) {
         // Generate the mode.
-        heating::continous_mode_t mode = heating::builder_t(base_parameters).make_continuous_mode(i); // Note: make_continuous_mode
-        mode.input[0] = input_power_levels[i]; // Set the actual input power
+        heating::continuous_mode_t mode = heating::builder_t(base_parameters).make_continuous_mode(i); // Note: make_continuous_mode
+        mode.input[0]                   = input_power_levels[i];                                       // Set the actual input power
         modes.emplace_back(mode);
 
         // Save a copy of the heating parameters (can be default, or varied if needed)

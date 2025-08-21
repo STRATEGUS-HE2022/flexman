@@ -25,7 +25,7 @@ namespace heating
 {
 
 /// @brief Number of system states.
-constexpr std::size_t n_states = 1;
+constexpr std::size_t n_states = 2;
 
 /// @brief Number of system inputs.
 constexpr std::size_t n_input = 1;
@@ -52,13 +52,13 @@ using pareto_front_t = flexman::core::ParetoFront<state_t, resources_t>;
 using discrete_system_t = fsmlib::control::DiscreteStateSpace<double, n_states, n_input, n_output>;
 
 /// @brief Continuous state-space system representation.
-using continous_system_t = fsmlib::control::StateSpace<double, n_states, n_input, n_output>;
+using continuous_system_t = fsmlib::control::StateSpace<double, n_states, n_input, n_output>;
 
 /// @brief Mode representation for discrete systems.
 using discrete_mode_t = flexman::core::Mode<discrete_system_t, input_t>;
 
 /// @brief Mode representation for continuous systems.
-using continous_mode_t = flexman::core::Mode<continous_system_t, input_t>;
+using continuous_mode_t = flexman::core::Mode<continuous_system_t, input_t>;
 
 /// @brief Simulation data and its associated name.
 struct simulation_t {

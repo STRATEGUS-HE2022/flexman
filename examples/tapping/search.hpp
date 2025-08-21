@@ -110,12 +110,12 @@ public:
     }
 };
 
-class continuous_search_t : public flexman::core::Manager<state_t, continous_mode_t, resources_t>
+class continuous_search_t : public flexman::core::Manager<state_t, continuous_mode_t, resources_t>
 {
 public:
     continuous_search_t() = default;
 
-    void updated_solution(solution_t &solution, const continous_mode_t &mode) const override
+    void updated_solution(solution_t &solution, const continuous_mode_t &mode) const override
     {
         // Update the state.
         numint::stepper_rk4<state_t, double> solver;
@@ -187,13 +187,13 @@ public:
         return interpolated_state;
     }
 
-    bool can_switch([[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    bool can_switch([[maybe_unused]] const continuous_mode_t &from, [[maybe_unused]] const continuous_mode_t &to) const override
     {
         // For now, allow any switch. This can be customized later.
         return true;
     }
 
-    resources_t get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continous_mode_t &from, [[maybe_unused]] const continous_mode_t &to) const override
+    resources_t get_switch_cost([[maybe_unused]] const state_t &current_state, [[maybe_unused]] const continuous_mode_t &from, [[maybe_unused]] const continuous_mode_t &to) const override
     {
         // For now, return zero resources. This can be customized later.
         return resources_t{0.0, 0.0};
