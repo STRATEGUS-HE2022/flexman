@@ -313,23 +313,47 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
     auto iterations = parser.getOption<unsigned>("--iterations");
 
     // Define a few discrete input power levels.
-    const std::vector<double> input_power_levels = {0.0, 1.0, 2.0, 3.0};
+    const std::vector<double> input_power_levels = {
+        0.0,   // Off
+        60.0,  // Warm
+        90.0,  // Soak
+        120.0, // Ramp
+        150.0, // High
+        180.0, // Max (short bursts)
+
+        // 0.0,   // Off
+        // 50.0,  // Warm
+        // 150.0, // Soak
+        // 300.0, // Ramp
+        // 600.0, // High
+        // 1200.0 // Max (short bursts)
+    };
 
     // Vector of model builders.
     std::vector<heating::parameters_t> parameters; // Still needed for save_results
     // Vector of modes.
     std::vector<heating::discrete_mode_t> modes;
-    // The standard heating parameters.
-    heating::parameters_t base_parameters; // Use default parameters
 
-    for (flexman::core::ModeId i = 0; i < input_power_levels.size(); ++i) {
+    flexman::core::ModeId mode_id = 0;
+    for (auto const input_power : input_power_levels) {
+        // The standard heating parameters.
+        heating::parameters_t b_params;
+        // Set the input_power of the parameters.
+        b_params.input_power = input_power;
+        // Create the builder.
+        heating::builder_t builder(b_params);
         // Generate the mode.
-        heating::discrete_mode_t mode = heating::builder_t(base_parameters).make_discrete_mode(i, search.time_delta);
-        mode.input[0]                 = input_power_levels[i]; // Set the actual input power
+        heating::discrete_mode_t mode = builder.make_discrete_mode(mode_id, search.time_delta);
+        // Set the input power.
+        mode.input[0]                 = input_power;
+        // Add the mode.
         modes.emplace_back(mode);
+        // Save a copy of the heating parameters.
+        parameters.emplace_back(b_params);
+        // Increment the mode id.
+        ++mode_id;
 
-        // Save a copy of the heating parameters (can be default, or varied if needed)
-        parameters.emplace_back(base_parameters);
+        std::cout << mode << "\n";
     }
 
     // Run the search.
@@ -437,23 +461,47 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
     auto iterations = parser.getOption<unsigned>("--iterations");
 
     // Define a few discrete input power levels.
-    const std::vector<double> input_power_levels = {0.0, 1.0, 2.0, 3.0};
+    const std::vector<double> input_power_levels = {
+        0.0,   // Off
+        60.0,  // Warm
+        90.0,  // Soak
+        120.0, // Ramp
+        150.0, // High
+        180.0, // Max (short bursts)
+
+        // 0.0,   // Off
+        // 50.0,  // Warm
+        // 150.0, // Soak
+        // 300.0, // Ramp
+        // 600.0, // High
+        // 1200.0 // Max (short bursts)
+    };
 
     // Vector of model builders.
     std::vector<heating::parameters_t> parameters; // Still needed for save_results
     // Vector of modes.
     std::vector<heating::continuous_mode_t> modes; // Note: continuous_mode_t
-    // The standard heating parameters.
-    heating::parameters_t base_parameters; // Use default parameters
 
-    for (flexman::core::ModeId i = 0; i < input_power_levels.size(); ++i) {
+    flexman::core::ModeId mode_id = 0;
+    for (auto const input_power : input_power_levels) {
+        // The standard heating parameters.
+        heating::parameters_t b_params;
+        // Set the input_power of the parameters.
+        b_params.input_power = input_power;
+        // Create the builder.
+        heating::builder_t builder(b_params);
         // Generate the mode.
-        heating::continuous_mode_t mode = heating::builder_t(base_parameters).make_continuous_mode(i); // Note: make_continuous_mode
-        mode.input[0]                   = input_power_levels[i];                                       // Set the actual input power
+        heating::continuous_mode_t mode = builder.make_continuous_mode(mode_id);
+        // Set the input power.
+        mode.input[0]                   = input_power;
+        // Add the mode.
         modes.emplace_back(mode);
+        // Save a copy of the heating parameters.
+        parameters.emplace_back(b_params);
+        // Increment the mode id.
+        ++mode_id;
 
-        // Save a copy of the heating parameters (can be default, or varied if needed)
-        parameters.emplace_back(base_parameters);
+        std::cout << mode << "\n";
     }
 
     // Run the search.

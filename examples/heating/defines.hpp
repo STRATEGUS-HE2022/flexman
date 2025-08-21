@@ -19,6 +19,9 @@
 #include <flexman/core/result.hpp>
 #include <flexman/core/solution.hpp>
 #include <flexman/simulation/common.hpp>
+#include <flexman/serialization.hpp>
+
+#include <fsmlib_support.hpp>
 
 /// @brief Induction Heating of Metal Workpieces.
 namespace heating
@@ -53,12 +56,6 @@ using discrete_system_t = fsmlib::control::DiscreteStateSpace<double, n_states, 
 
 /// @brief Continuous state-space system representation.
 using continuous_system_t = fsmlib::control::StateSpace<double, n_states, n_input, n_output>;
-
-/// @brief Mode representation for discrete systems.
-using discrete_mode_t = flexman::core::Mode<discrete_system_t, input_t>;
-
-/// @brief Mode representation for continuous systems.
-using continuous_mode_t = flexman::core::Mode<continuous_system_t, input_t>;
 
 /// @brief Simulation data and its associated name.
 struct simulation_t {

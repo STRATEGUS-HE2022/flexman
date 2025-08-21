@@ -13,8 +13,31 @@
 #include "defines.hpp"
 #include "parameters.hpp"
 
+#include <fsmlib/io.hpp>
+
 namespace heating
 {
+
+/// @brief Mode representation for discrete systems.
+class discrete_mode_t : public flexman::core::Mode<discrete_system_t, input_t>
+{
+public:
+    parameters_t parameters; ///< Parameters for the discrete mode.
+
+    /// @brief Default constructor.
+    discrete_mode_t() = default;
+};
+
+/// @brief Mode representation for continuous systems.
+// using continuous_mode_t = flexman::core::Mode<continuous_system_t, input_t>;
+class continuous_mode_t : public flexman::core::Mode<continuous_system_t, input_t>
+{
+public:
+    parameters_t parameters; ///< Parameters for the continuous mode.
+
+    /// @brief Default constructor.
+    continuous_mode_t() = default;
+};
 
 /// @brief Builds a mode.
 struct builder_t : public parameters_t {
@@ -30,47 +53,43 @@ struct builder_t : public parameters_t {
         continuous_mode_t mode;
         mode.id = id;
 
-        // Parameter checks
-        if (this->mass <= 0.0) {
-            std::cerr << "mass must be > 0\n";
-        }
-        if (this->Cp0 <= 0.0) {
-            std::cerr << "Cp0 must be > 0\n";
-        }
-        if (this->area <= 0.0) {
-            std::cerr << "area must be > 0\n";
-        }
-        if (this->h < 0.0) {
-            std::cerr << "h must be >= 0\n";
-        }
-        if (this->eta < 0.0 || this->eta > 1.0) {
-            std::cerr << "eta outside [0,1]\n";
-        }
-        if (this->env_mass <= 0.0) {
-            std::cerr << "env_mass must be > 0\n";
-        }
-        if (this->Cp_env <= 0.0) {
-            std::cerr << "Cp_env must be > 0\n";
-        }
-        if (this->G_leak < 0.0) {
-            std::cerr << "G_leak must be >= 0\n";
-        }
+        // Parameter checks.
+        assert(this->mass > 0.0);
+        assert(this->Cp0 > 0.0);
+        assert(this->area > 0.0);
+        assert(this->h >= 0.0);
+        assert(this->eta >= 0.0 && this->eta <= 1.0);
+        assert(this->env_mass > 0.0);
+        assert(this->Cp_env > 0.0);
+        assert(this->G_leak0 >= 0.0);
+        assert(this->k_leak_per_w >= 0.0);
+        assert(this->G_leak_min >= 0.0);
+        assert(this->G_leak_max >= this->G_leak_min);
+        assert(this->input_power >= 0.0);
 
-        // Precompute conductances and heat capacities
-        const double G     = this->h * this->area;
-        const double Cx    = this->mass * this->Cp0;
-        const double Ce    = this->env_mass * this->Cp_env;
-        const double Gleak = this->G_leak;
+        // Per-step update of A using G_leak(u) = G0 + k_leak * u
+        const double u  = input_power;
+        const double G  = this->h * this->area;
+        const double Cx = this->mass * this->Cp0;
+        const double Ce = this->env_mass * this->Cp_env;
+
+        // Tunables
+        const double G0     = this->G_leak0;      // base leak [W/°C]
+        const double k_leak = this->k_leak_per_w; // [ (W/°C) per W of heater power ]
+        const double Gmin   = this->G_leak_min;
+        const double Gmax   = this->G_leak_max;
+
+        const double G_leak_eff = std::clamp(G0 + k_leak * u, Gmin, Gmax);
 
         // A(2x2)
         mode.system.A = {
             {{-G / Cx}, {+G / Cx}},
-            {{+G / Ce}, {-(G + Gleak) / Ce}},
+            {{+G / Ce}, {-(G + G_leak_eff) / Ce}},
         };
 
         // B(2x1): u = electrical power [W]
         mode.system.B = {
-            {this->eta * this->R0 / Cx},
+            {this->eta / Cx},
             {0.0},
         };
 
@@ -80,8 +99,7 @@ struct builder_t : public parameters_t {
         // D(1x1)
         mode.system.D = {{0.0}};
 
-        // Placeholder input power
-        mode.input[0] = 10000.0;
+        mode.parameters = *this;
 
         return mode;
     }
@@ -97,9 +115,80 @@ struct builder_t : public parameters_t {
         mode.id     = id;
         mode.input  = ct_mode.input;
         mode.system = fsmlib::control::c2d(ct_mode.system, sample_time);
+
+        mode.parameters = *this;
+
         // Return the discretized mode.
         return mode;
     }
 };
 
+inline std::ostream &operator<<(std::ostream &lhs, const discrete_mode_t &rhs)
+{
+    using namespace fsmlib;
+    lhs << "Mode ID: " << rhs.id << "\n";
+    lhs << "System:\n";
+    lhs << rhs.system << "\n";
+    lhs << "Input: ";
+    lhs << rhs.input << "\n";
+    lhs << "Parameters: ";
+    lhs << rhs.parameters << "\n";
+    return lhs;
+}
+
+inline std::ostream &operator<<(std::ostream &lhs, const continuous_mode_t &rhs)
+{
+    lhs << "Mode ID: " << rhs.id << "\n";
+    lhs << "System:\n";
+    lhs << rhs.system << "\n";
+    lhs << "Input:\n";
+    lhs << rhs.input << "\n";
+    lhs << "Parameters:\n";
+    lhs << rhs.parameters << "\n";
+    return lhs;
+}
+
 } // namespace heating
+
+namespace json
+{
+
+inline json::jnode_t &operator<<(json::jnode_t &lhs, const heating::discrete_mode_t &rhs)
+{
+    lhs.set_type(json::JTYPE_OBJECT);
+    lhs["id"] << rhs.id;
+    lhs["system"] << rhs.system;
+    lhs["input"] << rhs.input;
+    lhs["parameters"] << rhs.parameters;
+    return lhs;
+}
+
+inline const json::jnode_t &operator>>(const json::jnode_t &lhs, heating::discrete_mode_t &rhs)
+{
+    lhs["id"] >> rhs.id;
+    lhs["system"] >> rhs.system;
+    lhs["input"] >> rhs.input;
+    lhs["parameters"] >> rhs.parameters;
+    return lhs;
+}
+
+inline json::jnode_t &operator<<(json::jnode_t &lhs, const heating::continuous_mode_t &rhs)
+{
+    lhs.set_type(json::JTYPE_OBJECT);
+    lhs["id"] << rhs.id;
+    lhs["system"] << rhs.system;
+    lhs["input"] << rhs.input;
+    lhs["parameters"] << rhs.parameters;
+    return lhs;
+}
+
+inline const json::jnode_t &operator>>(const json::jnode_t &lhs, heating::continuous_mode_t &rhs)
+{
+    lhs["id"] >> rhs.id;
+    lhs["system"] >> rhs.system;
+    lhs["input"] >> rhs.input;
+    lhs["parameters"] >> rhs.parameters;
+    return lhs;
+}
+
+} // namespace json

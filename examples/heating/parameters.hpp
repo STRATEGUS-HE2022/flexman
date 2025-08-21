@@ -16,39 +16,45 @@ namespace heating
 /// @brief Physical and model parameters for the thermal system.
 struct parameters_t {
     // --- Workpiece properties ---
-    double mass     = 1.0;   ///< [kg] mass of the workpiece
-    double area     = 0.1;   ///< [m^2] surface area exposed for heat transfer
-    double Cp0      = 1000.0; ///< [J/kg*C] heat capacity of workpiece at reference temperature
-    double T_init   = 20.0;  ///< [C] initial workpiece temperature
+    double mass = 2.32;  ///< [kg] mass of the workpiece
+    double area = 0.5;   ///< [m^2] surface area exposed for heat transfer
+    double Cp0  = 400.0; ///< [J/kg*C] heat capacity of workpiece at reference temperature
 
     // --- Heater/electrical properties ---
-    double eta     = 0.8;    ///< [–] efficiency factor [0,1]
-    double R0      = 0.01;   ///< [Ohm] resistance at reference temperature
+    double eta = 0.8; ///< [–] efficiency factor [0,1]
 
     // --- Environment node (second state) ---
-    double env_mass   = 1.0;    ///< [kg] effective thermal mass of environment
-    double Cp_env     = 1000.0; ///< [J/kg*C] environment heat capacity
-    double T_env_init = 20.0;   ///< [C] initial environment temperature
+    double env_mass = 1.0;   ///< [kg] effective thermal mass of environment
+    double Cp_env   = 800.0; ///< [J/kg*C] environment heat capacity
 
     // --- Coupling parameters ---
-    double h      = 10.0; ///< [W/m^2*C] heat transfer coefficient
-    double G_leak = 0.0;  ///< [W/C] leak conductance from environment to far field (0 = closed system)
+    double h            = 10.0; ///< [W/m^2*C] heat transfer coefficient
+    double G_leak0      = 1.0;  // [W/°C] baseline leak at zero power
+    double k_leak_per_w = 0.01; // [W/°C per W] → +2.4 W/°C at 600 W
+    double G_leak_min   = 0.5;
+    double G_leak_max   = 6.0;
+    
+    double fan_P0       = 8.0;
+    double fan_P_cubic  = 8.0;
+
+    // --- Setting parameters ---
+    double input_power = 0.0; ///< [W] The input power.
 };
 
 inline std::ostream &operator<<(std::ostream &lhs, const parameters_t &rhs)
 {
-    lhs << "Parameters:\n"
-        << "  mass: " << rhs.mass << " kg\n"
-        << "  area: " << rhs.area << " m^2\n"
-        << "  Cp0: " << rhs.Cp0 << " J/kg*C\n"
-        << "  T_init: " << rhs.T_init << " C\n"
-        << "  eta: " << rhs.eta << "\n"
-        << "  R0: " << rhs.R0 << " Ohm\n"
-        << "  env_mass: " << rhs.env_mass << " kg\n"
-        << "  Cp_env: " << rhs.Cp_env << " J/kg*C\n"
-        << "  T_env_init: " << rhs.T_env_init << " C\n"
-        << "  h: " << rhs.h << " W/m^2*C\n"
-        << "  G_leak: " << rhs.G_leak << " W/C\n";
+    lhs << "mass: " << rhs.mass << " kg, "
+        << "area: " << rhs.area << " m^2, "
+        << "Cp0: " << rhs.Cp0 << " J/kg*C, "
+        << "eta: " << rhs.eta << ", "
+        << "env_mass: " << rhs.env_mass << " kg, "
+        << "Cp_env: " << rhs.Cp_env << " J/kg*C, "
+        << "h: " << rhs.h << " W/m^2*C, "
+        << "G_leak0: " << rhs.G_leak0 << " W/C, "
+        << "k_leak_per_w: " << rhs.k_leak_per_w << " (W/°C) per W, "
+        << "G_leak_min: " << rhs.G_leak_min << " W/°C, "
+        << "G_leak_max: " << rhs.G_leak_max << " W/°C, "
+        << "input_power: " << rhs.input_power << " W\n";
     return lhs;
 }
 
@@ -63,14 +69,15 @@ inline json::jnode_t &operator<<(json::jnode_t &lhs, const heating::parameters_t
     lhs["mass"] << rhs.mass;
     lhs["area"] << rhs.area;
     lhs["Cp0"] << rhs.Cp0;
-    lhs["T_init"] << rhs.T_init;
     lhs["eta"] << rhs.eta;
-    lhs["R0"] << rhs.R0;
     lhs["env_mass"] << rhs.env_mass;
     lhs["Cp_env"] << rhs.Cp_env;
-    lhs["T_env_init"] << rhs.T_env_init;
     lhs["h"] << rhs.h;
-    lhs["G_leak"] << rhs.G_leak;
+    lhs["G_leak0"] << rhs.G_leak0;
+    lhs["k_leak_per_w"] << rhs.k_leak_per_w;
+    lhs["G_leak_min"] << rhs.G_leak_min;
+    lhs["G_leak_max"] << rhs.G_leak_max;
+    lhs["input_power"] << rhs.input_power;
     return lhs;
 }
 
@@ -79,14 +86,15 @@ inline const json::jnode_t &operator>>(const json::jnode_t &lhs, heating::parame
     lhs["mass"] >> rhs.mass;
     lhs["area"] >> rhs.area;
     lhs["Cp0"] >> rhs.Cp0;
-    lhs["T_init"] >> rhs.T_init;
     lhs["eta"] >> rhs.eta;
-    lhs["R0"] >> rhs.R0;
     lhs["env_mass"] >> rhs.env_mass;
     lhs["Cp_env"] >> rhs.Cp_env;
-    lhs["T_env_init"] >> rhs.T_env_init;
     lhs["h"] >> rhs.h;
-    lhs["G_leak"] >> rhs.G_leak;
+    lhs["G_leak0"] >> rhs.G_leak0;
+    lhs["k_leak_per_w"] >> rhs.k_leak_per_w;
+    lhs["G_leak_min"] >> rhs.G_leak_min;
+    lhs["G_leak_max"] >> rhs.G_leak_max;
+    lhs["input_power"] >> rhs.input_power;
     return lhs;
 }
 
