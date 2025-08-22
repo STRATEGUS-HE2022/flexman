@@ -28,18 +28,15 @@
 /// 3-Clause License. See LICENSE.md for details.
 ///
 
+#include <cmath>
+#include <cmdlp/parser.hpp>
+#include <flexman/serialization.hpp>
+
 #include "builder.hpp"
 #include "defines.hpp"
 #include "fsmlib_support.hpp"
 #include "plotting.hpp"
 #include "search.hpp"
-
-#include <cmath>
-#include <cmdlp/parser.hpp>
-
-#include <flexman/pso/optimize.hpp>
-#include <flexman/serialization.hpp>
-#include <flexman/simulation/simulate.hpp>
 
 namespace heating
 {

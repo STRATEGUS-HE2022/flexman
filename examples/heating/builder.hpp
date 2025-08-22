@@ -13,8 +13,6 @@
 #include "defines.hpp"
 #include "parameters.hpp"
 
-#include <fsmlib/io.hpp>
-
 namespace heating
 {
 

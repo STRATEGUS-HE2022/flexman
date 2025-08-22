@@ -23,7 +23,7 @@
 
 #include <json/json.hpp>
 
-#include <fsmlib/control.hpp>
+#include <fsmlib/fsmlib.hpp>
 
 namespace detail
 {

@@ -9,14 +9,12 @@
 ///
 
 #include <array>
-#include <flexman/logging.hpp>
-#include <flexman/serialization.hpp>
-#include <flexman/simulation/simulate.hpp>
-#include <gpcpp/gnuplot.hpp>
 #include <vector>
 #include <limits> // Required for std::numeric_limits
 #include <iomanip> // Required for std::setprecision, std::fixed, std::setw, std::right
 #include <sstream> // Required for std::stringstream
+
+#include <gpcpp/gnuplot.hpp>
 
 #include "defines.hpp"
 

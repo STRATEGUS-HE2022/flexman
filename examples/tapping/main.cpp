@@ -28,18 +28,15 @@
 /// 3-Clause License. See LICENSE.md for details.
 ///
 
+#include <cmath>
+#include <cmdlp/parser.hpp>
+#include <flexman/serialization.hpp>
+
 #include "builder.hpp"
 #include "defines.hpp"
 #include "fsmlib_support.hpp"
 #include "plotting.hpp"
 #include "search.hpp"
-
-#include <cmath>
-#include <cmdlp/parser.hpp>
-
-#include <flexman/pso/optimize.hpp>
-#include <flexman/serialization.hpp>
-#include <flexman/simulation/simulate.hpp>
 
 namespace tapping
 {
@@ -291,13 +288,13 @@ auto execute_in_discrete_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
     tapping::discrete_search_t search;
-    search.initial_state = {0, 0, 0};
-    search.target_state  = {0, 0, parser.getOption<double>("--depth")};
-    search.time_max      = parser.getOption<double>("--time_max");
-    search.time_delta    = parser.getOption<double>("--time_delta");
-    search.threshold     = parser.getOption<double>("--threshold");
-    search.timeout       = parser.getOption<double>("--timeout");
-    search.interactive   = parser.getOption<bool>("--interactive");
+    search.initial_state     = {0, 0, 0};
+    search.target_state      = {0, 0, parser.getOption<double>("--depth")};
+    search.time_max          = parser.getOption<double>("--time_max");
+    search.time_delta        = parser.getOption<double>("--time_delta");
+    search.threshold         = parser.getOption<double>("--threshold");
+    search.timeout           = parser.getOption<double>("--timeout");
+    search.interactive       = parser.getOption<bool>("--interactive");
     search.coarsening_factor = parser.getOption<unsigned>("--coarsening_factor");
 
     // Select the algorithm.
@@ -408,13 +405,13 @@ auto execute_in_continuous_mode(cmdlp::Parser &parser) -> int
 {
     // Search parameters.
     tapping::continuous_search_t search;
-    search.initial_state = {0, 0, 0};
-    search.target_state  = {0, 0, parser.getOption<double>("--depth")};
-    search.time_max      = parser.getOption<double>("--time_max");
-    search.time_delta    = parser.getOption<double>("--time_delta");
-    search.threshold     = parser.getOption<double>("--threshold");
-    search.timeout       = parser.getOption<double>("--timeout");
-    search.interactive   = parser.getOption<bool>("--interactive");
+    search.initial_state     = {0, 0, 0};
+    search.target_state      = {0, 0, parser.getOption<double>("--depth")};
+    search.time_max          = parser.getOption<double>("--time_max");
+    search.time_delta        = parser.getOption<double>("--time_delta");
+    search.threshold         = parser.getOption<double>("--threshold");
+    search.timeout           = parser.getOption<double>("--timeout");
+    search.interactive       = parser.getOption<bool>("--interactive");
     search.coarsening_factor = parser.getOption<unsigned>("--coarsening_factor");
 
     // Select the algorithm.

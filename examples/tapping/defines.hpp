@@ -22,15 +22,11 @@
 
 #pragma once
 
+#include <flexman/flexman.hpp>
+#include <fsmlib/fsmlib.hpp>
+#include <fsmlib_support.hpp>
+
 #include "resources.hpp"
-
-#include <fsmlib/control.hpp>
-
-#include <flexman/core/mode.hpp>
-#include <flexman/core/pareto_front.hpp>
-#include <flexman/core/result.hpp>
-#include <flexman/core/solution.hpp>
-#include <flexman/simulation/common.hpp>
 
 /// @brief A tapping system.
 namespace tapping

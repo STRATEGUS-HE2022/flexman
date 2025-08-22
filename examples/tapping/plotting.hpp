@@ -19,9 +19,6 @@
 ///
 
 #include <array>
-#include <flexman/logging.hpp>
-#include <flexman/serialization.hpp>
-#include <flexman/simulation/simulate.hpp>
 #include <gpcpp/gnuplot.hpp>
 #include <vector>
 
