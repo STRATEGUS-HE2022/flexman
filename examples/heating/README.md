@@ -58,6 +58,7 @@ C_env · dT_env/dt = G·(T - T_env) - G_leak(u)·(T_env - T_inf)
 ```
 
 Where:
+
 - `C_workpiece = mass × Cp0` [J/°C] - Workpiece thermal capacitance
 - `C_env = env_mass × Cp_env` [J/°C] - Environment thermal capacitance  
 - `G = h × area` [W/°C] - Fixed heat transfer conductance (workpiece ↔ environment)
@@ -88,6 +89,7 @@ D = [[0.0]]
 ```
 
 Where:
+
 - `Cx = mass × Cp0` [J/°C]
 - `Ce = env_mass × Cp_env` [J/°C]
 - `G_leak_eff = clamp(G0 + k_leak × u, G_min, G_max)` [W/°C]
@@ -101,6 +103,7 @@ G_leak(u) = clamp(G0 + k_leak × u, G_min, G_max)
 ```
 
 **Parameters:**
+
 - `G0` [W/°C] - Baseline leak at zero power
 - `k_leak` [W/°C per W] - Leak gain per watt of heater power
 - `G_min, G_max` [W/°C] - Safety bounds
@@ -112,6 +115,7 @@ G_leak(u) = clamp(G0 + k_leak × u, G_min, G_max)
 ### Motivation
 
 Industrial heating systems use fans/blowers for:
+
 1. **Cooling**: Prevent overheating of electrical components
 2. **Airflow**: Maintain proper combustion or heat distribution
 3. **Safety**: Remove hazardous gases or maintain pressure
@@ -127,6 +131,7 @@ P_fan(u) = P_f0 + P_f_cubic × (G_leak(u)/G0)³
 ```
 
 **Physical basis:**
+
 - **Cubic scaling**: Fan power ∝ (airflow)³ follows standard affinity laws for centrifugal fans
 - **Leak-dependent**: More leak conductance correlates with higher airflow requirements
 - **Baseline power**: `P_f0` represents idle fan draw for basic cooling
@@ -134,10 +139,12 @@ P_fan(u) = P_f0 + P_f_cubic × (G_leak(u)/G0)³
 ### Parameter Selection
 
 **Recommended values:**
+
 - `P_f0 = 8.0` W - Idle fan draw
 - `P_f_cubic = 0.5` W - Cubic scaling factor
 
 **Validation example** (500W heater):
+
 - `G_leak = min(1.0 + 0.01×500, 6.0) = 6.0` W/°C
 - `P_fan = 8.0 + 0.5×(6.0/1.0)³ = 8.0 + 108 = 116` W
 - **Total electrical**: 500 + 116 = 616 W
@@ -205,30 +212,35 @@ Q_leaked = G_leak(u) × (T_env - T_inf) × Δt  [J]
 
 ## Parameters Reference
 
-### Workpiece Properties
+Workpiece Properties:
+
 ```cpp
 double mass = 2.32;   // [kg] workpiece mass
 double area = 0.5;    // [m²] heat transfer surface area
 double Cp0 = 400.0;   // [J/kg·°C] heat capacity at reference temperature
 ```
 
-### Heater Properties
+Heater Properties:
+
 ```cpp
 double eta = 0.8;     // [-] heater efficiency (0-1)
 ```
 
-### Environment Node
+Environment Node:
+
 ```cpp
 double env_mass = 1.0;    // [kg] effective thermal mass
 double Cp_env = 800.0;    // [J/kg·°C] environment heat capacity
 ```
 
-### Heat Transfer
+Heat Transfer:
+
 ```cpp
 double h = 10.0;          // [W/m²·°C] heat transfer coefficient
 ```
 
-### Leak Conductance Model
+Leak Conductance Model:
+
 ```cpp
 double G_leak0 = 1.0;     // [W/°C] baseline leak at zero power
 double k_leak_per_w = 0.01; // [W/°C per W] leak gain per watt
@@ -236,7 +248,8 @@ double G_leak_min = 0.5;  // [W/°C] minimum leak conductance
 double G_leak_max = 6.0;  // [W/°C] maximum leak conductance
 ```
 
-### Fan Power Model
+Fan Power Model:
+
 ```cpp
 double fan_P0 = 8.0;      // [W] idle fan draw at baseline leak
 double fan_P_cubic = 0.5; // [W] cubic scaling factor
@@ -247,12 +260,14 @@ double fan_P_cubic = 0.5; // [W] cubic scaling factor
 ### Builder Architecture
 
 **Files**:
+
 - `parameters.hpp` - Parameter definitions and defaults
 - `builder.hpp` - System matrix construction and mode creation
 - `defines.hpp` - Type definitions and constants
 - `resources.hpp` - Resource tracking (energy, time)
 
 **Key classes**:
+
 - `parameters_t` - Contains all physical parameters
 - `builder_t` - Inherits from `parameters_t`, builds modes
 - `continuous_mode_t` - Continuous-time system representation
@@ -261,9 +276,11 @@ double fan_P_cubic = 0.5; // [W] cubic scaling factor
 ### Search Managers
 
 **Files**:
+
 - `search.hpp` - Discrete and continuous search managers
 
 **Key features**:
+
 - Use pre-computed `mode.total_electrical_power`
 - No runtime `leak_and_fan()` calculations
 - Consistent energy accounting between discrete/continuous
@@ -287,6 +304,7 @@ For constant input power `u`, the steady-state temperature rise is approximately
 ```
 
 This shows **diminishing returns** as power increases:
+
 - Numerator grows linearly with `u`
 - Denominator grows with `u` due to `G_leak(u) = G0 + k_leak × u`
 - Result: Temperature saturates, while electrical cost (including fan) continues growing
@@ -294,18 +312,21 @@ This shows **diminishing returns** as power increases:
 ### Example Calculations
 
 **Low power (100W)**:
+
 - G_leak = 1.0 + 0.01×100 = 2.0 W/°C
 - P_fan = 8.0 + 0.5×(2.0)³ = 12.0 W
 - Total electrical = 112 W
 - ΔT_steady ≈ (0.8×100)/(5.0+2.0) ≈ 11.4°C
 
 **High power (400W)**:
+
 - G_leak = 1.0 + 0.01×400 = 5.0 W/°C  
 - P_fan = 8.0 + 0.5×(5.0)³ = 70.5 W
 - Total electrical = 470.5 W
 - ΔT_steady ≈ (0.8×400)/(5.0+5.0) ≈ 32.0°C
 
 **Efficiency comparison**:
+
 - Low power: 11.4°C / 112W = 0.102 °C/W
 - High power: 32.0°C / 470.5W = 0.068 °C/W
 
@@ -314,6 +335,7 @@ This demonstrates the **diminishing returns** that drive the optimization to fin
 ### Physical Validation
 
 The model captures realistic industrial heating behavior:
+
 - ✅ Higher power increases both heating rate and losses
 - ✅ Fan power grows super-linearly with heating power
 - ✅ Optimal power sequences balance time vs. energy consumption
@@ -323,6 +345,7 @@ The model captures realistic industrial heating behavior:
 ## Future Extensions
 
 Potential model enhancements:
+
 1. **Temperature-dependent properties**: Variable Cp, thermal conductivity
 2. **Radiation losses**: T⁴ dependence for high-temperature applications  
 3. **Multi-zone heating**: Spatial temperature distribution

@@ -33,7 +33,6 @@ namespace core
 {
 
 /// @brief Represents a simulation result, containing a set of Pareto fronts.
-///
 /// @tparam State The type representing the system's state.
 /// @tparam Resources The type representing the system's resources.
 template <typename State, typename Resources>
@@ -41,7 +40,6 @@ struct Result {
     std::vector<ParetoFront<State, Resources>> pareto_fronts; ///< The set of Pareto fronts.
 
     /// @brief Calculates the total runtime across all Pareto fronts.
-    ///
     /// @return The total runtime as a double.
     auto get_total_runtime() const
     {
@@ -54,7 +52,6 @@ struct Result {
     }
 
     /// @brief Converts a Result object to a string representation.
-    ///
     /// @return A string summarizing the Result, including total runtime and
     /// the number of Pareto fronts.
     auto to_string() const -> std::string
@@ -71,17 +68,15 @@ struct Result {
     }
 };
 
-} // namespace core
-} // namespace flexman
-
 /// @brief Outputs a Result object to an output stream.
-///
 /// @param lhs The output stream to write to.
 /// @param rhs The Result object to output.
-///
 /// @return A reference to the output stream.
 template <typename State, typename Resources>
-auto operator<<(std::ostream &lhs, const flexman::core::Result<State, Resources> &rhs) -> std::ostream &
+auto operator<<(std::ostream &lhs, const Result<State, Resources> &rhs) -> std::ostream &
 {
     return (lhs << rhs.to_string());
 }
+
+} // namespace core
+} // namespace flexman

@@ -50,5 +50,21 @@ struct SolverParameters {
     double social           = 0.4;
 };
 
+/// @brief Outputs the SolverParameters object to an output stream.
+/// @param lhs The output stream to write to.
+/// @param rhs The SolverParameters object to output.
+/// @return A reference to the output stream.
+std::ostream &operator<<(std::ostream &lhs, const SolverParameters &rhs)
+{
+    lhs << "SolverParameters{";
+    lhs << "num_particles: " << rhs.num_particles << ", ";
+    lhs << "max_iterations: " << rhs.max_iterations << ", ";
+    lhs << "inertia: " << rhs.inertia << ", ";
+    lhs << "cognitive: " << rhs.cognitive << ", ";
+    lhs << "social: " << rhs.social;
+    lhs << "}";
+    return lhs;
+}
+
 } // namespace pso
 } // namespace flexman

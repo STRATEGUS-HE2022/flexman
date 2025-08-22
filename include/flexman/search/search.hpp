@@ -48,12 +48,10 @@ namespace search
 {
 
 /// @brief Performs a single iteration of the search process.
-///
 /// @tparam Algorithm The search algorithm to use.
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the manager handling the search process.
 /// @param modes The set of modes available for simulation.
 /// @param steps_per_iteration The number of steps simulated in this iteration.
@@ -127,18 +125,15 @@ void perform_search_single_iteration(
 }
 
 /// @brief Performs multiple iterations of the search process.
-///
 /// @tparam Algorithm The search algorithm to use.
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the manager handling the search process.
 /// @param modes The set of modes available for simulation.
 /// @param steps_per_iteration The number of steps simulated per iteration.
 /// @param previous_pareto_front The previous Pareto front of solutions.
 /// @param global_timer The global timer to track the search process duration.
-///
 /// @return The updated Pareto front after performing the iterations.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, typename Resources>
 auto perform_search_n_iterations(
@@ -252,15 +247,12 @@ auto perform_search_n_iterations(
 }
 
 /// @brief Performs a search using the given parameters and modes.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the manager handling the search process.
 /// @param modes The modes available for simulation.
 /// @param iterations The number of iterations to perform in the search.
-///
 /// @return The result of the search containing the Pareto fronts.
 template <SearchAlgorithm Algorithm, typename State, typename Mode, typename Resources>
 auto perform_search(

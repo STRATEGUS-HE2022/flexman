@@ -39,7 +39,6 @@ namespace core
 {
 
 /// @brief A Pareto front.
-///
 /// @tparam System The type defining the system's dynamics.
 /// @tparam Input The type defining the system's input.
 template <typename State, typename Resources>
@@ -56,7 +55,6 @@ struct ParetoFront {
     double runtime;
 
     /// @brief Converts a ParetoFront object to a string representation.
-    ///
     /// @return A string summarizing the ParetoFront, including runtime, iteration,
     /// step length, and steps per iteration.
     auto to_string() const -> std::string
@@ -76,15 +74,15 @@ struct ParetoFront {
     }
 };
 
-} // namespace core
-} // namespace flexman
-
 /// @brief Outputs a ParetoFront object to an output stream.
 /// @param lhs The output stream to write to.
 /// @param rhs The ParetoFront object to output.
 /// @return A reference to the output stream.
 template <typename State, typename Resources>
-auto operator<<(std::ostream &lhs, const flexman::core::ParetoFront<State, Resources> &rhs) -> std::ostream &
+auto operator<<(std::ostream &lhs, const ParetoFront<State, Resources> &rhs) -> std::ostream &
 {
     return (lhs << rhs.to_string());
 }
+
+} // namespace core
+} // namespace flexman

@@ -39,15 +39,12 @@ namespace simulation
 {
 
 /// @brief Generates a solution by simulating a sequence of mode executions.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the manager that handles solution updates and evaluation.
 /// @param modes The vector of modes available for execution.
 /// @param sequence The sequence of mode executions to simulate.
-///
 /// @return The generated solution after simulating the mode sequence.
 template <typename State, typename Mode, typename Resources>
 auto generate_solution(
@@ -83,11 +80,9 @@ auto generate_solution(
 }
 
 /// @brief Simulates one step and updates the solution.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the manager that handles the simulation.
 /// @param mode The mode being simulated.
 /// @param solution The current solution to update.
@@ -107,15 +102,12 @@ inline void simulate_one_step(
 }
 
 /// @brief Simulates the mode and produces a new solution at each step.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the manager handling the simulation.
 /// @param mode The mode being simulated.
 /// @param steps The number of steps to simulate.
-///
 /// @return A structure defining default simulation specifications.
 template <typename State, typename Mode, typename Resources>
 inline auto simulate_single_mode(

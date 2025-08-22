@@ -42,7 +42,6 @@ namespace core
 {
 
 /// @brief Template class for managing the search.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
@@ -71,26 +70,20 @@ public:
     Manager() = default;
 
     /// @brief Copy constructor.
-    ///
     /// @param other the other instance to copy.
     Manager(const Manager &other) = default;
 
     /// @brief Copy assignment operator.
-    ///
     /// @param other the other instance to copy.
-    ///
     /// @return a reference to this instance.
     auto operator=(const Manager &other) -> Manager & = default;
 
     /// @brief Move constructor.
-    ///
     /// @param other the other instance to move.
     Manager(Manager &&other) noexcept = default;
 
     /// @brief Move assignment operator.
-    ///
     /// @param other the other instance to move.
-    ///
     /// @return a reference to this instance.
     auto operator=(Manager &&other) noexcept -> Manager & = default;
 
@@ -98,87 +91,68 @@ public:
     virtual ~Manager() = default;
 
     /// @brief Updates the given solution.
-    ///
     /// @param solution The solution to be updated.
     /// @param mode The mode used for updating the solution.
     virtual void updated_solution(flexman::core::Solution<State, Resources> &solution, const Mode &mode) const = 0;
 
     /// @brief Checks if the given solution is complete.
-    ///
     /// @param solution The solution to be checked.
-    ///
     /// @return True if the solution is complete, false otherwise.
     virtual auto is_complete(const flexman::core::Solution<State, Resources> &solution) const -> bool = 0;
 
     /// @brief Provides the distance between the given solution and the target.
-    ///
     /// @param solution The solution to be measured.
-    ///
     /// @return The distance between the solution and the target.
     virtual auto distance(const flexman::core::Solution<State, Resources> &solution) const -> double = 0;
 
     /// @brief Checks if one solution is better than another.
-    ///
     /// @param first The first solution.
     /// @param second The second solution.
-    ///
     /// @return True if the first solution is better than the second, false otherwise.
     virtual auto is_strictly_better_than(
         const flexman::core::Solution<State, Resources> &first,
         const flexman::core::Solution<State, Resources> &second) const -> bool = 0;
 
     /// @brief Checks if one solution is better than another.
-    ///
     /// @param first The first solution.
     /// @param second The second solution.
-    ///
     /// @return True if the first solution is better than the second, false otherwise.
     virtual auto is_probably_better_than(
         const flexman::core::Solution<State, Resources> &first,
         const flexman::core::Solution<State, Resources> &second) const -> bool = 0;
 
     /// @brief Compares a solution with another.
-    ///
     /// @param first The first solution.
     /// @param second The second solution.
-    ///
     /// @return True if the solutions are equal, false otherwise.
     virtual auto is_equal(
         const flexman::core::Solution<State, Resources> &first,
         const flexman::core::Solution<State, Resources> &second) const -> bool = 0;
 
     /// @brief Interpolates between two resource instances based on a time delta.
-    ///
     /// @param r0 The previous set of resources.
     /// @param r1 The new set of resources.
     /// @param rel The relative time factor for interpolation.
-    ///
     /// @return Interpolated Resources instance.
     virtual auto interpolate_resources(const Resources &r0, const Resources &r1, double rel) const -> Resources = 0;
 
     /// @brief Interpolates between two states.
-    ///
     /// @param s0 The previous state.
     /// @param s1 The new state.
     /// @param rel The relative time factor for interpolation.
-    ///
     /// @return Interpolated Resources instance.
     virtual auto interpolate_state(const State &s0, const State &s1, double rel) const -> State = 0;
 
     /// @brief Checks if it is possible to switch from one mode to another.
-    ///
     /// @param from The mode being switched from.
     /// @param to The mode being switched to.
-    ///
     /// @return True if the switch is allowed, false otherwise.
     virtual auto can_switch(const Mode &from, const Mode &to) const -> bool = 0;
 
     /// @brief Provides the cost of switching from one mode to another.
-    ///
     /// @param current_state The current state of the system.
     /// @param from The mode being switched from.
     /// @param to The mode being switched to.
-    ///
     /// @return The cost of switching modes.
     virtual auto get_switch_cost(const State &current_state, const Mode &from, const Mode &to) const -> Resources = 0;
 };

@@ -24,9 +24,7 @@ namespace heating
 {
 
 /// @brief Builds the plot name string for a Pareto front.
-///
 /// @param pareto The Pareto front object containing metadata such as the step length.
-///
 /// @return std::string A formatted string representing the name of the Pareto front.
 inline std::string build_plot_name(const heating::pareto_front_t &pareto)
 {
@@ -66,10 +64,8 @@ inline std::pair<std::vector<double>, std::vector<double>> extract_time_state(co
 }
 
 /// @brief Computes global axis limits for a dataset containing multiple Pareto fronts.
-///
 /// @param results The result set containing multiple Pareto fronts.
 /// @param margin_fraction The fraction of the range to use as margin.
-///
 /// @return A pair of pairs: ((x_min, x_max), (y_min, y_max)) for x and y limits.
 std::pair<std::array<double, 2>, std::array<double, 2>>
 compute_global_limits(const heating::result_t &results, double margin_fraction = 0.1)
@@ -121,7 +117,6 @@ compute_global_limits(const heating::result_t &results, double margin_fraction =
 /// results, where each Pareto front represents a trade-off curve between time
 /// and energy. It assigns a unique color to each Pareto front and displays a
 /// legend for clarity.
-///
 /// @param results The result set containing multiple Pareto fronts to be
 /// plotted. Each Pareto front includes solutions with associated time and
 /// energy data.

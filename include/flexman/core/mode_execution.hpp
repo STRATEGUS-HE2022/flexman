@@ -46,7 +46,6 @@ struct ModeExecution {
     std::size_t times;
 
     /// @brief Constructs a ModeExecution instance.
-    ///
     /// @param _mode The identifier of the mode.
     /// @param _times The number of times to execute the mode.
     ModeExecution(flexman::core::ModeId _mode, std::size_t _times)
@@ -57,10 +56,8 @@ struct ModeExecution {
     }
 
     /// @brief Compares two ModeExecution objects for equality.
-    ///
     /// @param lhs The left-hand side ModeExecution.
     /// @param rhs The right-hand side ModeExecution.
-    ///
     /// @return True if both mode and times are equal; false otherwise.
     friend auto operator==(const ModeExecution &lhs, const ModeExecution &rhs) noexcept -> bool
     {
@@ -68,10 +65,8 @@ struct ModeExecution {
     }
 
     /// @brief Compares two ModeExecution objects for inequality.
-    ///
     /// @param lhs The left-hand side ModeExecution.
     /// @param rhs The right-hand side ModeExecution.
-    ///
     /// @return True if either mode or times differ; false otherwise.
     friend auto operator!=(const ModeExecution &lhs, const ModeExecution &rhs) noexcept -> bool
     {
@@ -79,7 +74,6 @@ struct ModeExecution {
     }
 
     /// @brief Converts a ModeExecution object to a string representation.
-    ///
     /// @return A string summarizing the ModeExecution, including mode identifier
     /// and the execution count.
     auto to_string() const -> std::string
@@ -94,7 +88,6 @@ struct ModeExecution {
 namespace detail
 {
 /// @brief Adds a mode to the sequence or updates the count of the last mode if it matches.
-///
 /// @param mode The mode to execute.
 /// @param sequence The sequence of mode executions to update.
 inline void add_mode_execution_to_sequence(flexman::core::ModeId mode, std::vector<ModeExecution> &sequence)
@@ -109,16 +102,14 @@ inline void add_mode_execution_to_sequence(flexman::core::ModeId mode, std::vect
 }
 } // namespace detail
 
-} // namespace core
-} // namespace flexman
-
 /// @brief Outputs a ModeExecution object to an output stream.
-///
 /// @param lhs The output stream to write to.
 /// @param rhs The ModeExecution object to output.
-///
 /// @return A reference to the output stream, allowing for chaining.
-auto operator<<(std::ostream &lhs, const flexman::core::ModeExecution &rhs) -> std::ostream &
+auto operator<<(std::ostream &lhs, const ModeExecution &rhs) -> std::ostream &
 {
     return (lhs << rhs.to_string());
 }
+
+} // namespace core
+} // namespace flexman

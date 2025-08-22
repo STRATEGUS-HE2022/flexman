@@ -43,7 +43,6 @@ namespace core
 {
 
 /// @brief Represents a single solution, which may be incomplete.
-///
 /// @tparam State The type representing the current state.
 /// @tparam Resources The type representing the resources used.
 template <typename State, typename Resources>
@@ -58,7 +57,6 @@ struct Solution {
     double distance{};
 
     /// @brief Returns true if the sequence of mode executions is empty.
-    ///
     /// @return True if the sequence is empty, false otherwise.
     auto is_empty() const -> bool
     {
@@ -66,7 +64,6 @@ struct Solution {
     }
 
     /// @brief Returns the last mode execution in the sequence.
-    ///
     /// @return The last ModeExecution object.
     /// @throws std::out_of_range if the sequence is empty.
     auto get_last_execution() const -> const ModeExecution &
@@ -78,7 +75,6 @@ struct Solution {
     }
 
     /// @brief Returns the ID of the last mode in the sequence.
-    ///
     /// @return The ID of the last mode.
     /// @throws std::out_of_range if the sequence is empty.
     auto get_last_mode_id() const -> ModeId
@@ -87,10 +83,8 @@ struct Solution {
     }
 
     /// @brief Compares two solutions for equality based on their sequences or resources.
-    ///
     /// @param lhs The left-hand side solution.
     /// @param rhs The right-hand side solution.
-    ///
     /// @return True if the sequences or resources are equal, otherwise false.
     friend auto operator==(
         const flexman::core::Solution<State, Resources> &lhs,
@@ -100,10 +94,8 @@ struct Solution {
     }
 
     /// @brief Compares two solutions to determine if one is "less than" the other.
-    ///
     /// @param lhs The left-hand side solution.
     /// @param rhs The right-hand side solution.
-    ///
     /// @return True if the sequences differ and the resources of lhs are less than rhs.
     friend auto operator<(
         const flexman::core::Solution<State, Resources> &lhs,
@@ -113,7 +105,6 @@ struct Solution {
     }
 
     /// @brief Converts a Solution object to a string representation.
-    ///
     /// @return A string summarizing the Solution, including state, resources,
     /// distance, and mode sequence size.
     auto to_string() const -> std::string
@@ -135,17 +126,15 @@ struct Solution {
     }
 };
 
-} // namespace core
-} // namespace flexman
-
 /// @brief Outputs a Solution object to an output stream.
-///
 /// @param lhs The output stream to write to.
 /// @param rhs The Solution object to output.
-///
 /// @return A reference to the output stream.
 template <typename State, typename Resources>
-auto operator<<(std::ostream &lhs, const flexman::core::Solution<State, Resources> &rhs) -> std::ostream &
+auto operator<<(std::ostream &lhs, const Solution<State, Resources> &rhs) -> std::ostream &
 {
     return (lhs << rhs.to_string());
 }
+
+} // namespace core
+} // namespace flexman

@@ -32,13 +32,10 @@ namespace json
 {
 
 /// @brief Serializes a Mode object to a JSON node.
-///
 /// @tparam System The type representing the system.
 /// @tparam Input The type representing the input.
-///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Mode object to serialize.
-///
 /// @return A reference to the updated JSON node.
 template <typename System, typename Input>
 inline auto operator<<(json::jnode_t &lhs, const flexman::core::Mode<System, Input> &rhs) -> json::jnode_t &
@@ -51,13 +48,10 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::Mode<System, Inp
 }
 
 /// @brief Deserializes a Mode object from a JSON node.
-///
 /// @tparam System The type representing the system.
 /// @tparam Input The type representing the input.
-///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Mode object to populate.
-///
 /// @return A reference to the original JSON node.
 template <typename System, typename Input>
 inline auto operator>>(const json::jnode_t &lhs, flexman::core::Mode<System, Input> &rhs) -> const json::jnode_t &
@@ -69,13 +63,10 @@ inline auto operator>>(const json::jnode_t &lhs, flexman::core::Mode<System, Inp
 }
 
 /// @brief Serializes a ParetoFront object to a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to write to.
 /// @param rhs The ParetoFront object to serialize.
-///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
 inline auto operator<<(json::jnode_t &lhs, const flexman::core::ParetoFront<State, Resources> &rhs) -> json::jnode_t &
@@ -90,13 +81,10 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::ParetoFront<Stat
 }
 
 /// @brief Deserializes a ParetoFront object from a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to read from.
 /// @param rhs The ParetoFront object to populate.
-///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
 inline auto operator>>(const json::jnode_t &lhs, flexman::core::ParetoFront<State, Resources> &rhs)
@@ -110,13 +98,10 @@ inline auto operator>>(const json::jnode_t &lhs, flexman::core::ParetoFront<Stat
 }
 
 /// @brief Serializes a Result object to a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Result object to serialize.
-///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
 inline auto operator<<(json::jnode_t &lhs, const flexman::core::Result<State, Resources> &rhs) -> json::jnode_t &
@@ -127,13 +112,10 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::Result<State, Re
 }
 
 /// @brief Deserializes a Result object from a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Result object to populate.
-///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
 inline auto operator>>(const json::jnode_t &lhs, flexman::core::Result<State, Resources> &rhs) -> const json::jnode_t &
@@ -143,10 +125,8 @@ inline auto operator>>(const json::jnode_t &lhs, flexman::core::Result<State, Re
 }
 
 /// @brief Serializes a ModeExecution object to a JSON node.
-///
 /// @param lhs The JSON node to write to.
 /// @param rhs The ModeExecution object to serialize.
-///
 /// @return A reference to the updated JSON node.
 inline auto operator<<(json::jnode_t &lhs, const flexman::core::ModeExecution &rhs) -> json::jnode_t &
 {
@@ -157,10 +137,8 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::ModeExecution &r
 }
 
 /// @brief Deserializes a ModeExecution object from a JSON node.
-///
 /// @param lhs The JSON node to read from.
 /// @param rhs The ModeExecution object to populate.
-///
 /// @return A reference to the original JSON node.
 inline auto operator>>(const json::jnode_t &lhs, flexman::core::ModeExecution &rhs) -> const json::jnode_t &
 {
@@ -171,13 +149,10 @@ inline auto operator>>(const json::jnode_t &lhs, flexman::core::ModeExecution &r
 }
 
 /// @brief Serializes a Solution object to a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Solution object to serialize.
-///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Resources>
 inline auto operator<<(json::jnode_t &lhs, const flexman::core::Solution<State, Resources> &rhs) -> json::jnode_t &
@@ -190,13 +165,10 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::Solution<State, 
 }
 
 /// @brief Deserializes a Solution object from a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Solution object to populate.
-///
 /// @return A reference to the original JSON node.
 template <typename State, typename Resources>
 inline auto operator>>(const json::jnode_t &lhs, flexman::core::Solution<State, Resources> &rhs)
@@ -210,14 +182,11 @@ inline auto operator>>(const json::jnode_t &lhs, flexman::core::Solution<State, 
 }
 
 /// @brief Serializes a Manager object to a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to write to.
 /// @param rhs The Manager object to serialize.
-///
 /// @return A reference to the updated JSON node.
 template <typename State, typename Mode, class Resources>
 inline auto operator<<(json::jnode_t &lhs, const flexman::core::Manager<State, Mode, Resources> &rhs) -> json::jnode_t &
@@ -235,14 +204,11 @@ inline auto operator<<(json::jnode_t &lhs, const flexman::core::Manager<State, M
 }
 
 /// @brief Deserializes a Manager object from a JSON node.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param lhs The JSON node to read from.
 /// @param rhs The Manager object to populate.
-///
 /// @return A reference to the original JSON node.
 template <typename State, typename Mode, class Resources>
 inline auto operator>>(const json::jnode_t &lhs, flexman::core::Manager<State, Mode, Resources> &rhs)

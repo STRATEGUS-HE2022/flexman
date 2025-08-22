@@ -66,10 +66,8 @@ enum class SwitchingMode : unsigned char {
 };
 
 /// @brief Logs a set of solutions conditionally based on the specified log level.
-///
 /// @tparam State The type representing the system's state.
 /// @tparam Resources The type representing the system's resources.
-///
 /// @param logger The logger instance used for logging.
 /// @param level The log level to determine whether logging should occur.
 /// @param solutions The vector of solutions to log.
@@ -88,9 +86,7 @@ static inline void log_solutions(
 }
 
 /// @brief Moves elements from the source vector to the destination vector.
-///
 /// @tparam T The type of elements stored in the vectors.
-///
 /// @param source The vector containing elements to move.
 /// @param destination The vector to which elements will be moved.
 template <typename T>
@@ -104,15 +100,12 @@ static inline void move_elements(std::vector<T> &source, std::vector<T> &destina
 }
 
 /// @brief Finds the solution closest to zero distance by interpolating between two given solutions.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources used in the system.
-///
 /// @param manager Pointer to the manager handling the search process.
 /// @param previous The previously known solution in the search.
 /// @param current The current solution in the search.
-///
 /// @return The solution closest to zero distance.
 template <typename State, typename Mode, class Resources>
 auto find_solution_closest_to_zero(
@@ -152,17 +145,14 @@ auto find_solution_closest_to_zero(
 }
 
 /// @brief Simulates the mode and produces a new solution.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param search Pointer to the search manager handling the simulation.
 /// @param all_modes The vector of all available modes.
 /// @param mode The mode being simulated.
 /// @param steps The number of steps to simulate.
 /// @param solution The initial solution to start the simulation from.
-///
 /// @return The new solution obtained after the simulation.
 template <typename State, typename Mode, class Resources>
 inline auto simulate_mode(
@@ -215,18 +205,15 @@ inline auto simulate_mode(
 }
 
 /// @brief Extends the given set of partial solutions using the set of modes.
-///
 /// @tparam SwitchMode The switching mode for simulation.
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the search manager handling the extension process.
 /// @param modes The set of modes used to extend the solutions.
 /// @param steps_per_iteration The number of steps to simulate per iteration.
 /// @param partials The set of partial solutions to extend.
 /// @param global_timer The global timer to track the extension process duration.
-///
 /// @return A new set of extended solutions.
 template <SwitchingMode SwitchMode, typename State, typename Mode, class Resources>
 auto extend_solutions(
@@ -305,12 +292,10 @@ auto extend_solutions(
 }
 
 /// @brief Calculates dominance information for a set of solutions.
-///
 /// @tparam Algorithm The search algorithm used to evaluate dominance.
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the search manager handling the process.
 /// @param solutions The vector of solutions to analyze.
 /// @param dominated_by_this_solution Output: A vector where each element at index `i`
@@ -354,12 +339,10 @@ static inline void calculate_dominance_info(
 }
 
 /// @brief Removes solutions that are dominated by any solution in the given set.
-///
 /// @tparam Algorithm The search algorithm used to evaluate dominance.
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the search manager handling the process.
 /// @param solutions The set of solutions to filter.
 /// @param solutions_to_check_against The set of solutions to check for dominance.
@@ -408,12 +391,10 @@ void remove_dominated_solutions(
 
 
 /// @brief Removes dominated solutions from a vector.
-///
 /// @tparam Algorithm The search algorithm used to evaluate dominance.
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the search manager handling the process.
 /// @param solutions The vector of solutions to filter, also used as the
 /// reference for dominance checks.
@@ -459,10 +440,8 @@ void remove_dominated_solutions(
 
 
 /// @brief Removes duplicate solutions from the given set of solutions.
-///
 /// @tparam State The type representing the state.
 /// @tparam Resources The type representing the resources.
-///
 /// @param solutions The vector of solutions to filter for duplicates.
 template <typename State, class Resources>
 void remove_duplicate_solutions(std::vector<flexman::core::Solution<State, Resources>> &solutions)
@@ -479,11 +458,9 @@ void remove_duplicate_solutions(std::vector<flexman::core::Solution<State, Resou
 
 /// @brief Splits the given set of solutions into complete and partial
 /// solutions.
-///
 /// @tparam State The type representing the state.
 /// @tparam Mode The type representing the mode.
 /// @tparam Resources The type representing the resources.
-///
 /// @param manager Pointer to the search manager handling the process.
 /// @param solutions The vector of solutions to split.
 /// @param complete The vector to store complete solutions.

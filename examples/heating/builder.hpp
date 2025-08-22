@@ -22,8 +22,8 @@ namespace heating
 class discrete_mode_t : public flexman::core::Mode<discrete_system_t, input_t>
 {
 public:
-    parameters_t parameters;          ///< Parameters for the discrete mode.
-    double total_electrical_power;    ///< Pre-computed total electrical power (heater + fan) [W]
+    parameters_t parameters;       ///< Parameters for the discrete mode.
+    double total_electrical_power; ///< Pre-computed total electrical power (heater + fan) [W]
 
     /// @brief Default constructor.
     discrete_mode_t() = default;
@@ -34,8 +34,8 @@ public:
 class continuous_mode_t : public flexman::core::Mode<continuous_system_t, input_t>
 {
 public:
-    parameters_t parameters;          ///< Parameters for the continuous mode.
-    double total_electrical_power;    ///< Pre-computed total electrical power (heater + fan) [W]
+    parameters_t parameters;       ///< Parameters for the continuous mode.
+    double total_electrical_power; ///< Pre-computed total electrical power (heater + fan) [W]
 
     /// @brief Default constructor.
     continuous_mode_t() = default;
@@ -107,7 +107,9 @@ struct builder_t : public parameters_t {
         };
 
         // C(1x2): output T (workpiece); use {{ {1,0}, {0,1} }} if you want both outputs
-        mode.system.C = {{{1.0}, {0.0}}};
+        mode.system.C = {
+            {{1.0}, {0.0}},
+        };
 
         // D(1x1)
         mode.system.D = {{0.0}};
@@ -129,7 +131,7 @@ struct builder_t : public parameters_t {
         mode.input  = ct_mode.input;
         mode.system = fsmlib::control::c2d(ct_mode.system, sample_time);
 
-        mode.parameters = *this;
+        mode.parameters             = *this;
         mode.total_electrical_power = ct_mode.total_electrical_power; // Copy from continuous mode
 
         // Return the discretized mode.

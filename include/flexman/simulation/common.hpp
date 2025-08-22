@@ -29,7 +29,6 @@ namespace simulation
 {
 
 /// @brief A structure that keeps track of a simulation information.
-///
 /// @tparam State The type representing the system's state.
 /// @tparam Resources The type representing the system's resources.
 template <typename State, typename Resources>
