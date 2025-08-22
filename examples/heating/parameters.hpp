@@ -29,13 +29,14 @@ struct parameters_t {
 
     // --- Coupling parameters ---
     double h            = 10.0; ///< [W/m^2*C] heat transfer coefficient
-    double G_leak0      = 1.0;  // [W/°C] baseline leak at zero power
-    double k_leak_per_w = 0.01; // [W/°C per W] → +2.4 W/°C at 600 W
-    double G_leak_min   = 0.5;
-    double G_leak_max   = 6.0;
+    double G_leak0      = 1.0;  ///< [W/°C] baseline leak at zero power
+    double k_leak_per_w = 0.01; ///< [W/°C per W] leak gain per watt of heater power
+    double G_leak_min   = 0.5;  ///< [W/°C] minimum leak conductance
+    double G_leak_max   = 6.0;  ///< [W/°C] maximum leak conductance
     
-    double fan_P0       = 8.0;
-    double fan_P_cubic  = 8.0;
+    // --- Fan power parameters ---
+    double fan_P0       = 8.0;  ///< [W] idle fan draw at baseline leak
+    double fan_P_cubic  = 0.5;  ///< [W] scale factor for cubic fan power term
 
     // --- Setting parameters ---
     double input_power = 0.0; ///< [W] The input power.
